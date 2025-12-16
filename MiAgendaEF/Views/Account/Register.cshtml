@@ -1,0 +1,79 @@
+﻿@using MiAgendaEF.Models.ViewModels
+@model RegisterViewModel
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Regístrate</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6 col-lg-5">
+
+            <form asp-controller="Account" asp-action="Register" method="post" class="p-4 border rounded-3 shadow-sm bg-light">
+
+                <h2 class="text-center mb-4">Regístrate</h2>
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Nombre" class="form-label"></label>
+                    <input asp-for="Nombre" class="form-control" placeholder="Tu nombre">
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="PrimerApellido" class="form-label"></label>
+                    <input asp-for="PrimerApellido" class="form-control" placeholder="Primer Apellido">
+                    <span asp-validation-for="PrimerApellido" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="SegundoApellido" class="form-label"></label>
+                    <input asp-for="SegundoApellido" class="form-control" placeholder="Segundo Apellido">
+                    <span asp-validation-for="SegundoApellido" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Correo" class="form-label"></label>
+                    <input asp-for="Correo" class="form-control" placeholder="correo@ejemplo.com">
+                    <span asp-validation-for="Correo" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="NombreUsuario" class="form-label"></label>
+                    <input asp-for="NombreUsuario" class="form-control" placeholder="Usuario">
+                    <span asp-validation-for="NombreUsuario" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" placeholder="Mín. 7 caracteres">
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Repite la contraseña">
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Telefono" class="form-label"></label>
+                    <input asp-for="Telefono" class="form-control" placeholder="Telefono">
+                    <span asp-validation-for="Telefono" class="text-danger"></span>
+                </div>
+
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Registrarme</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

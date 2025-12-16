@@ -1,0 +1,16 @@
+﻿namespace DataAccess.Models.Tables;
+
+public class Contacto
+{
+    public int ContactoId { get; set; }
+    public int UsuarioId { get; set; }
+    public string Nombre { get; set; } = null!;
+    public string PrimerApellido { get; set; } = null!;
+    public string SegundoApellido { get; set; } = null!;
+    public DateTime FechaNacimiento { get; set; }
+    public string FotoRuta { get; set; } = null!;
+    public DateTime FechaRegistro { get; set; }
+    public string Telefono { get; set; } = null!;
+
+    public virtual ICollection<DetalleContactoRed> Detalle { get; set; } = new List<DetalleContactoRed>();
+}
