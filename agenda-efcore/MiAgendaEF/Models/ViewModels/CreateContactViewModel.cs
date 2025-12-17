@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MiAgendaEF.Models.ViewModels;
 
-public class CrearContactoViewModel
+public class CreateContactViewModel
 {
     [Required(ErrorMessage = "El Nombre es obligatorio.")]
     [Display(Name = "Nombre")]

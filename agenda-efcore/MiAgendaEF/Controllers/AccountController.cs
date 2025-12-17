@@ -24,10 +24,7 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
-        if (!ModelState.IsValid)
-        {
-            return View(model);
-        }
+        if (!ModelState.IsValid) return View(model);
 
         try
         {
@@ -35,54 +32,20 @@ public class AccountController : Controller
 
             if (usuario == null)
             {
-                ModelState.AddModelError("", "Usuario o  contraseña incorrectos");
+                ModelState.AddModelError("", "Usuario o contraseña incorrectos");
                 return View(model);
             }
 
-            var contactos = await _miAgendaInfrastructure.GetContactByIdAsync(usuario.UsuarioId);
-
-            var agendaViewModel = new AgendaViewModel
-            {
-                Titulo = $"Agenda de {usuario.Nombre}",
-                TotalContactos = contactos.Count,
-                Contactos = contactos.Select(u => new ContactoViewModel
-                {
-                    ContactoId = u.ContactoId,
-                    NombreCompleto = $"{u.Nombre} {u.PrimerApellido}",
-                    Telefono = u.Telefono,
-                    Edad = _miAgendaInfrastructure.CalcularEdad(u.FechaNacimiento),
-                    RedesSociales = u.Detalle.Select(d => new RedSocialViewModel
-                    {
-                        //NombreTipo = d.NombreUsuarioRed,
-                        // Si tu RedSocialViewModel tiene un campo 'Valor' que mapea a la URL, úsalo:
-                        URL = d.URL,
-
-                        // Asumo que el campo URL en el ViewModel se llama 'Valor'
-
-                        // Agregar otros campos de RedSocialViewModel si existen
-                        //NombreUsuarioRed = d.NombreUsuarioRed ?? "N/A"
-                    }).ToList()
-                }).ToList()
-            };
-
+            // Guardar sesión
             HttpContext.Session.SetString("UsuarioId", usuario.UsuarioId.ToString());
-            HttpContext.Session.SetString("UsuarioNombre", usuario.NombreUsuario);
+            HttpContext.Session.SetString("UsuarioNombre", usuario.Nombre);
 
-            if (model.Recordarme)
-            {
-                Response.Cookies.Append("UsuarioRecordado", usuario.NombreUsuario, new CookieOptions
-                {
-                    Expires = DateTimeOffset.Now.AddDays(7),
-                    HttpOnly = true,
-                    Secure = true
-                });
-            }
-
-            return View("Agenda", agendaViewModel);
+            return RedirectToAction("Index", "Contacts");
         }
         catch (Exception)
         {
-            ModelState.AddModelError("", "Ocurrió un error al intentar iniciar sesión. Inténtalo nuevamente.");
+            // Aquí podrías loguear el error: _logger.LogError(ex.Message);
+            ModelState.AddModelError("", "Error técnico al iniciar sesión. Intente más tarde.");
             return View(model);
         }
     }
