@@ -25,18 +25,28 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         return await _applicationDbContext.Usuarios.AnyAsync(u => u.NombreUsuario == correo || u.Correo == correo);
     }
 
-    public async Task<Usuario> CreateUserAsync(Usuario usuario)
+    public async Task<Usuario> RegisterAsync(Usuario usuario)
     {
         _applicationDbContext.Usuarios.Add(usuario);
         await _applicationDbContext.SaveChangesAsync();
         return usuario;
     }
 
-    //public async Task AddUserAsync(Usuario usuario)
-    //{
-    //    _applicationDbContext.Usuarios.Add(usuario);
-    //    await _applicationDbContext.SaveChangesAsync();
-    //}
+    public async Task<Usuario?> GetUserByIdAsync(int usuarioId)
+    {
+        return await _applicationDbContext.Usuarios.FirstOrDefaultAsync(u => u.UsuarioId == usuarioId);
+    }
+
+    public async Task UpdatePasswordAsync(int usuarioId, string passwordHash)
+    {
+        var usuario = await _applicationDbContext.Usuarios.FirstOrDefaultAsync(u => u.UsuarioId == usuarioId);
+
+        if (usuario == null)
+            throw new Exception("Usuario no encontrado.");
+
+        usuario.Password = passwordHash;
+        await _applicationDbContext.SaveChangesAsync();
+    }
 
     public async Task<List<Contacto>> GetContactById(int usuarioId)
     {

@@ -9,9 +9,11 @@ public interface IMiAgendaDataAccess
 
     Task<bool> ExistsAsync(string correo, string nombreeUsuario);
 
-    Task<Usuario> CreateUserAsync(Usuario usuario);
+    Task<Usuario> RegisterAsync(Usuario usuario);
 
-    //Task AddUserAsync(Usuario usuario);
+    Task<Usuario?> GetUserByIdAsync(int usuarioId);
+
+    Task UpdatePasswordAsync(int usuarioId, string passwordHash);
 
     Task<List<Contacto>> GetContactById(int usuarioId);
     #endregion

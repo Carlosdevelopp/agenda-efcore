@@ -1,43 +1,29 @@
 ﻿using DataAccess.Contract;
 using DataAccess.Models.Tables;
 using Infrastructure.Contract;
-using Isopoh.Cryptography.Argon2;
 
 namespace Infrastructure.Implementation;
 
 public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 {
     private readonly IMiAgendaDataAccess _miAgendaDataAccess;
+    private readonly IPasswordHasher _passwordHasher;
 
-    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess)
+    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess, IPasswordHasher passwordHasher)
     {
         _miAgendaDataAccess = miAgendaDataAccess;
+        _passwordHasher = passwordHasher;
     }
 
     #region GET
     public async Task<Usuario?> LoginAsync(string credencial, string password)
     {
         var usuario = await _miAgendaDataAccess.GetUserByCredentialAsync(credencial);
-        bool credencialCoincide = (usuario != null);
+
         if (usuario == null) return null;
 
-        // Verificar contraseña
-        //bool passwordHash = Argon2.Verify(password);
-
-        if (usuario.Password == password)
-        {
-            return usuario;
-        }
-        else
-        {
-            return null;
-        }
-
-        //Console.WriteLine($"Usuario encontrado: {usuario?.NombreUsuario ?? "Ninguno"}");
-        //Console.WriteLine($"Password BD: '{usuario?.Password}' - Password Input: '{password}'");
-
-        
-        //return passwordHash ? usuario : null;
+        // verificar contraseña
+        return _passwordHasher.Verify(usuario.Password, password) ? usuario : null;
     }
 
     public async Task<(bool Success, string Message)> RegisterAsync(Usuario model)
@@ -46,43 +32,26 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 
         if (existe)
             return (false,"Ël correo o nombre de usuario ya está registrado.");
-        
-        var passwordHash = Argon2.Hash(model.Password);
 
-        var Nuevousuario = new Usuario
-        {
-            Nombre = model.Nombre,
-            PrimerApellido = model.PrimerApellido,
-            SegundoApellido = model.SegundoApellido,
-            Telefono = model.Telefono,
-            Correo = model.Correo,
-            NombreUsuario = model.NombreUsuario,
-            Password = passwordHash
-        };
+        model.Password = _passwordHasher.Hash(model.Password);
 
-        await _miAgendaDataAccess.CreateUserAsync(Nuevousuario);
+        model.FechaRegistro = DateTime.Now;
+        model.Estado = true;
+
+        await _miAgendaDataAccess.RegisterAsync(model);
 
         return (true, "Usuario registrado correctamente.");
     }
 
+    public async Task<(bool Success, string Message)> ResetPasswordAsync(int usuarioId, string newPassword)
+    {
 
-    //private bool VerifyPasswordArgon2(string password, string hashedPassword)
-    //{
-    //    var fullBytes = Convert.FromBase64String(hashedPassword);
-    //    byte[] salt = fullBytes.Take(16).ToArray();
-    //    byte[] hash = fullBytes.Skip(16).ToArray();
+        var passwordHash = _passwordHasher.Hash(newPassword);
 
-    //    var argon2 = new Argon2id(Encoding.UTF8.GetBytes(password))
-    //    {
-    //        Salt = salt,
-    //        DegreeOfParallelism = 8,
-    //        Iterations = 4,
-    //        MemorySize = 1024 * 64
-    //    };
+        await _miAgendaDataAccess.UpdatePasswordAsync(usuarioId, newPassword);
 
-    //    byte[] testHash = argon2.GetBytes(32);
-    //    return testHash.SequenceEqual(hash);
-    //}
+        return (true, "La contraseña fue actualizada correctamente.");
+    }
 
     public async Task<List<Contacto>> GetContactByIdAsync(int usuarioId)
     {
