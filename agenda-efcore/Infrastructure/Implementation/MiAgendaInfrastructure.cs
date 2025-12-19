@@ -19,8 +19,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     {
         var usuario = await _miAgendaDataAccess.GetUserByCredentialAsync(credencial);
         bool credencialCoincide = (usuario != null);
-        if (usuario == null)
-            return null;
+        if (usuario == null) return null;
 
         // Verificar contraseña
         //bool passwordHash = Argon2.Verify(password);
@@ -96,12 +95,6 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         int edad = hoy.Year - FechaNacimiento.Year;
         if (FechaNacimiento.Date > hoy.AddYears(-edad)) edad--;
         return edad;
-    }
-
-    public async Task<List<Usuario>> GetAllUsersAsync()
-    {
-        var usuarios = await _miAgendaDataAccess.GetAllUsersAsync();
-        return usuarios;
     }
     #endregion
 }

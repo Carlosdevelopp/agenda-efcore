@@ -36,7 +36,7 @@ public class AccountController : Controller
                 return View(model);
             }
 
-            // Guardar sesión
+            // Guardar datos de sesión
             HttpContext.Session.SetString("UsuarioId", usuario.UsuarioId.ToString());
             HttpContext.Session.SetString("UsuarioNombre", usuario.Nombre);
 
@@ -45,7 +45,7 @@ public class AccountController : Controller
         catch (Exception)
         {
             // Aquí podrías loguear el error: _logger.LogError(ex.Message);
-            ModelState.AddModelError("", "Error técnico al iniciar sesión. Intente más tarde.");
+            ModelState.AddModelError("", "Error al iniciar sesión.");
             return View(model);
         }
     }

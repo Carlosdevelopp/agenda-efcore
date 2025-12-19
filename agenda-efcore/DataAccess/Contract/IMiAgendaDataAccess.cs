@@ -14,7 +14,5 @@ public interface IMiAgendaDataAccess
     //Task AddUserAsync(Usuario usuario);
 
     Task<List<Contacto>> GetContactById(int usuarioId);
-
-    Task<List<Usuario>> GetAllUsersAsync();
     #endregion
 }

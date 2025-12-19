@@ -9,6 +9,5 @@ public interface IMiAgendaInfrastructure
     Task<(bool Success, string Message)> RegisterAsync(Usuario model);
     Task<List<Contacto>> GetContactByIdAsync(int usuarioId);
     int CalcularEdad(DateTime FechaNacimiento);
-    Task<List<Usuario>> GetAllUsersAsync();
     #endregion
 }

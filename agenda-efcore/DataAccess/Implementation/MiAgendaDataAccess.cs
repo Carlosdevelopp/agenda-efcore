@@ -20,7 +20,7 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         return await _applicationDbContext.Usuarios.FirstOrDefaultAsync(u => u.Correo == credencial || u.NombreUsuario == credencial);
     } 
     
-    public async Task<bool> ExistsAsync(string correo, string nombreeUsuario)
+    public async Task<bool> ExistsAsync(string correo, string nombreUsuario)
     {
         return await _applicationDbContext.Usuarios.AnyAsync(u => u.NombreUsuario == correo || u.Correo == correo);
     }
@@ -41,12 +41,6 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
     public async Task<List<Contacto>> GetContactById(int usuarioId)
     {
         return await _applicationDbContext.Contactos.Include(u => u.Detalle).Where(u => u.UsuarioId == usuarioId).ToListAsync();
-    }
-
-    public async Task<List<Usuario>> GetAllUsersAsync()
-    {
-        var usuarios = await _applicationDbContext.Usuarios.ToListAsync();
-        return usuarios;
     }
     #endregion
 }

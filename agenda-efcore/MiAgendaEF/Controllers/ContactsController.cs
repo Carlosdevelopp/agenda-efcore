@@ -47,7 +47,7 @@ public class ContactsController : Controller
         catch (Exception)
         {
             // Si algo falla, redirigimos a una página de error o al Login con un mensaje
-            TempData["Error"] = "No se pudieron cargar tus contactos. Por favor, reintenta.";
+            TempData["ErrorMessage"] = "No se pudieron cargar tus contactos. Por favor, reintenta.";
             return RedirectToAction("Login", "Account");
         }
     }
