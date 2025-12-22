@@ -1,4 +1,5 @@
-﻿using Infrastructure.Contract;
+﻿using DataAccess.Models.Tables;
+using Infrastructure.Contract;
 using MiAgendaEF.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
@@ -72,15 +73,39 @@ public class AccountController : Controller
     }
 
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
+        if (!ModelState.IsValid) return View(model);
+
         try
         {
-            return View("Register");
+            var usuario = new Usuario
+            {
+                Nombre = model.Nombre,
+                PrimerApellido = model.PrimerApellido,
+                SegundoApellido = model.SegundoApellido,
+                Correo = model.Correo,
+                NombreUsuario = model.NombreUsuario,
+                Password = model.Password,
+                Telefono = model.Telefono,
+            };
+
+            var result = await _miAgendaInfrastructure.RegisterAsync(usuario);
+
+            if (!result.Success)
+            {
+                ModelState.AddModelError(string.Empty, result.Message);
+                return View(model);
+            }
+
+            TempData["success"] = result.Message;
+            return RedirectToAction("Login");
         }
         catch (Exception)
         {
-            return RedirectToAction("Login");
+            ModelState.AddModelError(string.Empty, "Ocurrio un error al registrar  el  usuario.");
+            return View(model);
         }
     }
 }

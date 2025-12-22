@@ -1,6 +1,8 @@
 ﻿using DataAccess.Contract;
 using DataAccess.Models.Tables;
 using Infrastructure.Contract;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Infrastructure.Implementation;
 
@@ -26,12 +28,19 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         return _passwordHasher.Verify(usuario.Password, password) ? usuario : null;
     }
 
+    public async Task<List<Contacto>> GetContactByIdAsync(int usuarioId)
+    {
+        return await _miAgendaDataAccess.GetContactById(usuarioId);
+    }
+    #endregion
+
+    #region POST
     public async Task<(bool Success, string Message)> RegisterAsync(Usuario model)
     {
         bool existe = await _miAgendaDataAccess.ExistsAsync(model.Correo, model.NombreUsuario);
 
         if (existe)
-            return (false,"Ël correo o nombre de usuario ya está registrado.");
+            return (false, "Ël correo o nombre de usuario ya está registrado.");
 
         model.Password = _passwordHasher.Hash(model.Password);
 
@@ -42,20 +51,60 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 
         return (true, "Usuario registrado correctamente.");
     }
+    #endregion
 
-    public async Task<(bool Success, string Message)> ResetPasswordAsync(int usuarioId, string newPassword)
+    #region UPDATE
+    public async Task<(bool Success, string Message)> ResetPasswordAsync(string token, string newPassword)
     {
 
+        //Hashear token recibido
+        var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
+
+        //Buscar token valido
+        var resetToken = await _miAgendaDataAccess.GetPasswordResetTokenAsync(tokenHash);
+
+        if (resetToken == null)
+            return (false, "El enlace de recuperación es inválido o ha expirado.");
+
+        //Hashear nueva contraseña con Argon2
         var passwordHash = _passwordHasher.Hash(newPassword);
 
-        await _miAgendaDataAccess.UpdatePasswordAsync(usuarioId, newPassword);
+        //Actualizar contraseña
+        await _miAgendaDataAccess.UpdatePasswordAsync(resetToken.UsuarioId, passwordHash);
+
+        //Marcar token como usado
+        await _miAgendaDataAccess.MarkPasswordResetTokenAsUsedAsync(resetToken.PasswordResetId);
 
         return (true, "La contraseña fue actualizada correctamente.");
     }
+    #endregion
 
-    public async Task<List<Contacto>> GetContactByIdAsync(int usuarioId)
+    public async Task<(bool Success, string Message)> ForgotPasswordAsync(string email)
     {
-        return await _miAgendaDataAccess.GetContactById(usuarioId);
+        var usuario = await _miAgendaDataAccess.GetUserByCredentialAsync(email);
+
+        //No revelar si el correo existe
+        if (usuario == null)
+            return (true, "Si el correo existe, recibiás instrucciones para restablecer tu contraseña.");
+
+        //Genarar token seguro
+        var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+
+        //Hashear token (No guardar plano)
+        var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(rawToken)));
+
+        //Crear entidad
+        var resetToken = new PasswordResetToken
+        {
+            UsuarioId = usuario.UsuarioId,
+            TokenHash = tokenHash,
+            Expiration = DateTime.UtcNow.AddHours(1),
+            Used = false 
+        };
+
+        await _miAgendaDataAccess.CreatePasswordResetTokenAsync(resetToken);
+
+        return (true, "Si el correo existe, recibirás instrucciones para restablecer tu contraseña.");
     }
 
     public int CalcularEdad(DateTime FechaNacimiento)
@@ -65,5 +114,4 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         if (FechaNacimiento.Date > hoy.AddYears(-edad)) edad--;
         return edad;
     }
-    #endregion
 }

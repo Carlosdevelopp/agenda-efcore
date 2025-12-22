@@ -10,6 +10,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Usuario> Usuarios { get; set; } = null!;
     public virtual DbSet<Contacto> Contactos { get; set; } = null!;
     public virtual DbSet<DetalleContactoRed> DetallesContactosRedes { get; set; }
+    public virtual DbSet<PasswordResetToken> PasswordResetsTokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,6 +30,12 @@ public class ApplicationDbContext : DbContext
         {
             entity.ToTable("DetallesContactosRedes");
             entity.HasKey(e => e.DetContactoRedId);
+        });
+
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.ToTable("PasswordResetsTokens");
+            entity.HasKey(e => e.PasswordResetId);
         });
 
         base.OnModelCreating(modelBuilder);
