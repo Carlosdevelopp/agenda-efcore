@@ -16,5 +16,11 @@ public interface IMiAgendaDataAccess
     Task UpdatePasswordAsync(int usuarioId, string passwordHash);
 
     Task<List<Contacto>> GetContactById(int usuarioId);
+
+    Task CreatePasswordResetTokenAsync(PasswordResetToken token);
+
+    Task<PasswordResetToken?> GetPasswordResetTokenAsync(string tokenHash);
+
+    Task MarkPasswordResetTokenAsUsedAsync(int tokenId);
     #endregion
 }
