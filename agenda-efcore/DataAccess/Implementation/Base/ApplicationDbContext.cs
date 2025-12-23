@@ -10,7 +10,7 @@ public class ApplicationDbContext : DbContext
     public virtual DbSet<Usuario> Usuarios { get; set; } = null!;
     public virtual DbSet<Contacto> Contactos { get; set; } = null!;
     public virtual DbSet<DetalleContactoRed> DetallesContactosRedes { get; set; }
-    public virtual DbSet<PasswordResetToken> PasswordResetsTokens { get; set; } = null!;
+    public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -34,8 +34,26 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<PasswordResetToken>(entity =>
         {
-            entity.ToTable("PasswordResetsTokens");
-            entity.HasKey(e => e.PasswordResetId);
+            entity.ToTable("PasswordResetTokens");
+            entity.HasKey(t => t.PasswordResetId);
+
+            entity.Property(t => t.TokenHash)
+                  .IsRequired()
+                  .HasMaxLength(512);
+
+            entity.Property(x => x.Expiration)
+                  .IsRequired();
+
+            entity.Property(x => x.Used)
+                  .HasDefaultValue(false);
+
+            entity.Property(e => e.CreatedAT)
+                  .HasDefaultValueSql("GETUTCDATE()");
+
+            entity.HasOne<Usuario>()
+                  .WithMany()
+                  .HasForeignKey(t => t.UsuarioId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         base.OnModelCreating(modelBuilder);

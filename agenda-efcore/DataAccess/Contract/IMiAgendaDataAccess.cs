@@ -21,6 +21,8 @@ public interface IMiAgendaDataAccess
 
     Task<PasswordResetToken?> GetPasswordResetTokenAsync(string tokenHash);
 
-    Task MarkPasswordResetTokenAsUsedAsync(int tokenId);
+    Task MarkPasswordResetTokenUsedAsync(int tokenId);
+
+    Task InvalidatePasswordResetTokensAsync(int usuarioId);
     #endregion
 }

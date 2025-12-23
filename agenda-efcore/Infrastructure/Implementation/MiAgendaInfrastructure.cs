@@ -1,6 +1,8 @@
 ﻿using DataAccess.Contract;
 using DataAccess.Models.Tables;
 using Infrastructure.Contract;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -56,7 +58,6 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     #region UPDATE
     public async Task<(bool Success, string Message)> ResetPasswordAsync(string token, string newPassword)
     {
-
         //Hashear token recibido
         var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 
@@ -73,7 +74,10 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         await _miAgendaDataAccess.UpdatePasswordAsync(resetToken.UsuarioId, passwordHash);
 
         //Marcar token como usado
-        await _miAgendaDataAccess.MarkPasswordResetTokenAsUsedAsync(resetToken.PasswordResetId);
+        await _miAgendaDataAccess.MarkPasswordResetTokenUsedAsync(resetToken.PasswordResetId);
+
+        //Invalidar otros tokens
+        await _miAgendaDataAccess.InvalidatePasswordResetTokensAsync(resetToken.UsuarioId);
 
         return (true, "La contraseña fue actualizada correctamente.");
     }
@@ -87,13 +91,16 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         if (usuario == null)
             return (true, "Si el correo existe, recibiás instrucciones para restablecer tu contraseña.");
 
-        //Genarar token seguro
-        var rawToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        //Invalidar tokens anteriores
+        await _miAgendaDataAccess.InvalidatePasswordResetTokensAsync(usuario.UsuarioId);
 
-        //Hashear token (No guardar plano)
+        //Genarar token seguro
+        var rawToken = WebEncoders.Base64UrlEncode(RandomNumberGenerator.GetBytes(64));
+
+        //Hashear del token (No guardar plano)
         var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(rawToken)));
 
-        //Crear entidad
+        //Crear token
         var resetToken = new PasswordResetToken
         {
             UsuarioId = usuario.UsuarioId,

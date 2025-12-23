@@ -4,6 +4,7 @@ using DataAccess.Implementation.Base;
 using Infrastructure.Contract;
 using Infrastructure.Implementation;
 using Infrastructure.Implementation.Security;
+using Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +16,7 @@ builder.Services.AddScoped<IMiAgendaInfrastructure, MiAgendaInfrastructure>();
 builder.Services.AddScoped<IMiAgendaDataAccess, MiAgendaDataAccess>();
 
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();

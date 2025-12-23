@@ -8,4 +8,6 @@ public class PasswordResetToken
     public DateTime Expiration { get; set; }
     public bool Used { get; set; }
     public DateTime CreatedAT { get; set; }
+
+    public virtual Usuario usuario { get; set; } = null!;
 }

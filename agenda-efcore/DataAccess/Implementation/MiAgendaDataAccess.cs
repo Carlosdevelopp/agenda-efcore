@@ -48,12 +48,15 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
     #region UPDATE
     public async Task UpdatePasswordAsync(int usuarioId, string PasswordHash)
     {
-        var usuario = await _applicationDbContext.Usuarios.FirstOrDefaultAsync(u => u.UsuarioId == usuarioId);
+        var usuario = new Usuario
+        {
+            UsuarioId = usuarioId,
+            Password = PasswordHash,
+        };
 
-        if (usuario == null)
-            throw new Exception("Usuario no encontrado.");
+        _applicationDbContext.Usuarios.Attach(usuario);
+        _applicationDbContext.Entry(usuario).Property(u => u.Password).IsModified = true;
 
-        usuario.Password = PasswordHash;
         await _applicationDbContext.SaveChangesAsync();
     }
 
@@ -87,26 +90,44 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
 
     public async Task CreatePasswordResetTokenAsync(PasswordResetToken token)
     {
-        await _applicationDbContext.PasswordResetsTokens.AddAsync(token);
+        await _applicationDbContext.PasswordResetTokens.AddAsync(token);
         await _applicationDbContext.SaveChangesAsync();
     }
 
     public async Task<PasswordResetToken?> GetPasswordResetTokenAsync(string tokenHash)
     {
-        return await _applicationDbContext.PasswordResetsTokens.FirstOrDefaultAsync
+        return await _applicationDbContext.PasswordResetTokens.FirstOrDefaultAsync
             (u => u.TokenHash == tokenHash && !u.Used && u.Expiration > DateTime.UtcNow);
     }
 
-    public async Task MarkPasswordResetTokenAsUsedAsync(int tokenId)
+    public async Task MarkPasswordResetTokenUsedAsync(int tokenId)
     {
-        var token = new PasswordResetToken
-        {
-            PasswordResetId = tokenId,
-            Used = true
-        };
+        var token = await _applicationDbContext.PasswordResetTokens
+            .FindAsync(tokenId);
 
-        _applicationDbContext.PasswordResetsTokens.Attach(token);
-        _applicationDbContext.Entry(token).Property(t => t.Used).IsModified = true;
+        if (token == null) return;
+
+        token.Used = true;
+        await _applicationDbContext.SaveChangesAsync();
+    }
+
+    public async Task DeletedExpiredPasswordResetTokensAsync()
+    {
+        var now = DateTime.Now;
+
+        var tokens = await _applicationDbContext.PasswordResetTokens.Where(u => u.Expiration < now || u.Used).ToListAsync();
+
+        _applicationDbContext.PasswordResetTokens.RemoveRange(tokens);
+        await _applicationDbContext.SaveChangesAsync();
+    }
+
+    public async Task InvalidatePasswordResetTokensAsync(int usuarioId)
+    {
+        var tokens = await _applicationDbContext.PasswordResetTokens
+            .Where(t => t.UsuarioId == usuarioId && !t.Used).ToListAsync();
+
+        foreach (var token in tokens)
+            token.Used = true;
 
         await _applicationDbContext.SaveChangesAsync();
     }
