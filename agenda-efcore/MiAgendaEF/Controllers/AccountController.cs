@@ -117,10 +117,7 @@ public class AccountController : Controller
         if (String.IsNullOrWhiteSpace(token))
             return BadRequest();
 
-        return View(new ResetPasswordViewModel
-        {
-            Token = token
-        });
+        return View(new ResetPasswordViewModel { Token = token });
     }
 
     [HttpPost]
