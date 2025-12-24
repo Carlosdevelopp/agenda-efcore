@@ -48,15 +48,11 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
     #region UPDATE
     public async Task UpdatePasswordAsync(int usuarioId, string PasswordHash)
     {
-        var usuario = new Usuario
-        {
-            UsuarioId = usuarioId,
-            Password = PasswordHash,
-        };
+        var usuario = await _applicationDbContext.Usuarios.FindAsync(usuarioId);
 
-        _applicationDbContext.Usuarios.Attach(usuario);
-        _applicationDbContext.Entry(usuario).Property(u => u.Password).IsModified = true;
+        if (usuario == null) return;
 
+        usuario.Password = PasswordHash; 
         await _applicationDbContext.SaveChangesAsync();
     }
 
@@ -88,7 +84,7 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
     }
     #endregion
 
-    public async Task CreatePasswordResetTokenAsync(PasswordResetToken token)
+    public async Task GetValidPasswordResetTokenAsync(PasswordResetToken token)
     {
         await _applicationDbContext.PasswordResetTokens.AddAsync(token);
         await _applicationDbContext.SaveChangesAsync();

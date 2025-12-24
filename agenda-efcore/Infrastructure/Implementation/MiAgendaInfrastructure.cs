@@ -3,6 +3,7 @@ using DataAccess.Models.Tables;
 using Infrastructure.Contract;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -12,11 +13,15 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 {
     private readonly IMiAgendaDataAccess _miAgendaDataAccess;
     private readonly IPasswordHasher _passwordHasher;
+    private readonly IEmailService _emailService;
+    private readonly IConfiguration _configuration;
 
-    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess, IPasswordHasher passwordHasher)
+    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess, IPasswordHasher passwordHasher, IEmailService emailService,  IConfiguration configuration)
     {
         _miAgendaDataAccess = miAgendaDataAccess;
         _passwordHasher = passwordHasher;
+        _emailService = emailService;
+        _configuration = configuration;
     }
 
     #region GET
@@ -56,10 +61,10 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     #endregion
 
     #region UPDATE
-    public async Task<(bool Success, string Message)> ResetPasswordAsync(string token, string newPassword)
+    public async Task<(bool Success, string Message)> ResetPasswordAsync(string rawToken, string newPassword)
     {
         //Hashear token recibido
-        var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
+        var tokenHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(rawToken)));
 
         //Buscar token valido
         var resetToken = await _miAgendaDataAccess.GetPasswordResetTokenAsync(tokenHash);
@@ -109,7 +114,19 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
             Used = false 
         };
 
-        await _miAgendaDataAccess.CreatePasswordResetTokenAsync(resetToken);
+        await _miAgendaDataAccess.GetValidPasswordResetTokenAsync(resetToken);
+
+        var baseUrl = _configuration["AppSettings:BaseUrl"];
+
+        var resetLink = $"{baseUrl}/Account/ResetPassword?token={Uri.EscapeDataString(rawToken)}";
+
+        //Envío de email
+        await _emailService.SendPasswordResetAsync
+            (
+            usuario.Correo,
+            "Restablecer contraseña",
+            $"Haz clic en el siguiente enlace para restablecer tu contraseña:\n\n{resetLink}"
+            );
 
         return (true, "Si el correo existe, recibirás instrucciones para restablecer tu contraseña.");
     }

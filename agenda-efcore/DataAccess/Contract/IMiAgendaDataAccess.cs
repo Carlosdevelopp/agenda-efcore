@@ -17,7 +17,7 @@ public interface IMiAgendaDataAccess
 
     Task<List<Contacto>> GetContactById(int usuarioId);
 
-    Task CreatePasswordResetTokenAsync(PasswordResetToken token);
+    Task GetValidPasswordResetTokenAsync(PasswordResetToken token);
 
     Task<PasswordResetToken?> GetPasswordResetTokenAsync(string tokenHash);
 
