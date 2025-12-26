@@ -5,16 +5,19 @@ namespace DataAccess.Implementation.Base;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions options) : base(options) { }
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
     public virtual DbSet<Usuario> Usuarios { get; set; } = null!;
     public virtual DbSet<Contacto> Contactos { get; set; } = null!;
-    public virtual DbSet<DetalleContactoRed> DetallesContactosRedes { get; set; }
-    public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; } = null!;
+    public virtual DbSet<DetalleContactoRed> DetallesContactosRedes { get; set; } = null!;
+    public DbSet<PasswordResetToken> PasswordResetTokens { get; set; } = null!;
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-            modelBuilder.Entity<Usuario>(entity =>
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Usuario>(entity =>
         {
             entity.ToTable("Usuarios");
             entity.HasKey(e => e.UsuarioId);
@@ -35,7 +38,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<PasswordResetToken>(entity =>
         {
             entity.ToTable("PasswordResetTokens");
-            entity.HasKey(t => t.PasswordResetId);
+            entity.HasKey(t => t.PasswordResetTokenId);
 
             entity.Property(t => t.TokenHash)
                   .IsRequired()
@@ -45,6 +48,7 @@ public class ApplicationDbContext : DbContext
                   .IsRequired();
 
             entity.Property(x => x.Used)
+                  .IsRequired()
                   .HasDefaultValue(false);
 
             entity.Property(e => e.CreatedAT)
@@ -55,7 +59,5 @@ public class ApplicationDbContext : DbContext
                   .HasForeignKey(t => t.UsuarioId)
                   .OnDelete(DeleteBehavior.Cascade);
         });
-
-        base.OnModelCreating(modelBuilder);
     }
 }
