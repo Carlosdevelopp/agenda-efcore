@@ -1,5 +1,6 @@
 ﻿using Infrastructure.Contract;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using System.Net;
 using System.Net.Mail;
 
@@ -16,26 +17,32 @@ public class EmailService : IEmailService
 
     public async Task SendPasswordResetAsync(string toEmail, string userName, string resetLink)
     {
+        var smtp = _configuration["EmailSettings:Smtp"];
+        var port = int.Parse(_configuration["EmailSettings:Port"]!);
+        var from = _configuration["EmailSettings:From"];
+
+        var user = Environment.GetEnvironmentVariable("EMAIL_USER");
+        var password = Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
+
+        if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
+            throw new Exception("Credenciales de correo no configuradas");
+
         var message = new MailMessage
         {
-            From = new MailAddress(_configuration["EmailSettings:From"]!),
+            From = new MailAddress(from!),
             Subject = "Restablecer contraseña",
-            Body = $@" Hola {userName}, Haz clic en el siguiente enlace para resttablecer tu contraseña: 
-            {resetLink} Este enlace expirá en 1 hora.",
+            Body = $@" Hola {userName}, Haz clic en el siguiente enlace para restablecer tu contraseña: {resetLink} Este enlace expira en 1 hora.",
             IsBodyHtml = false
         };
 
         message.To.Add(toEmail);
 
-        using var smtp = new SmtpClient(_configuration["EmailSettings:Smtp"],
-            int.Parse(_configuration["EmailSettings:Port"]!))
+        using var client = new SmtpClient(smtp, port)
         {
-            Credentials = new NetworkCredential(
-                _configuration["EmailSettings:User"],
-                _configuration["EmailSettings:Password"]),
+            Credentials = new NetworkCredential(user, password.Replace(" ", "")),
             EnableSsl = true
         };
 
-        await smtp.SendMailAsync(message);
+        await client.SendMailAsync(message);
     }
 }

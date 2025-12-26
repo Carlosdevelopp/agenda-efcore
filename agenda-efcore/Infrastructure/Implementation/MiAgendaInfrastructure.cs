@@ -79,7 +79,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         await _miAgendaDataAccess.UpdatePasswordAsync(resetToken.UsuarioId, passwordHash);
 
         //Marcar token como usado
-        await _miAgendaDataAccess.MarkPasswordResetTokenUsedAsync(resetToken.PasswordResetId);
+        await _miAgendaDataAccess.MarkPasswordResetTokenUsedAsync(resetToken.PasswordResetTokenId);
 
         //Invalidar otros tokens
         await _miAgendaDataAccess.InvalidatePasswordResetTokensAsync(resetToken.UsuarioId);
@@ -114,7 +114,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
             Used = false 
         };
 
-        await _miAgendaDataAccess.GetValidPasswordResetTokenAsync(resetToken);
+        await _miAgendaDataAccess.CreatePasswordResetTokenAsync(resetToken);
 
         var baseUrl = _configuration["AppSettings:BaseUrl"];
 
@@ -124,8 +124,8 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         await _emailService.SendPasswordResetAsync
             (
             usuario.Correo,
-            "Restablecer contraseña",
-            $"Haz clic en el siguiente enlace para restablecer tu contraseña:\n\n{resetLink}"
+            usuario.NombreUsuario,
+            resetLink
             );
 
         return (true, "Si el correo existe, recibirás instrucciones para restablecer tu contraseña.");

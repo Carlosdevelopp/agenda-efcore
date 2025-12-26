@@ -18,8 +18,8 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
     public async Task<Usuario?> GetUserByCredentialAsync(string credencial)
     {
         return await _applicationDbContext.Usuarios.FirstOrDefaultAsync(u => u.Correo == credencial || u.NombreUsuario == credencial);
-    } 
-    
+    }
+
     public async Task<bool> ExistsAsync(string correo, string nombreUsuario)
     {
         return await _applicationDbContext.Usuarios.AnyAsync(u => u.NombreUsuario == correo || u.Correo == correo);
@@ -84,7 +84,7 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
     }
     #endregion
 
-    public async Task GetValidPasswordResetTokenAsync(PasswordResetToken token)
+    public async Task CreatePasswordResetTokenAsync(PasswordResetToken token)
     {
         await _applicationDbContext.PasswordResetTokens.AddAsync(token);
         await _applicationDbContext.SaveChangesAsync();
@@ -121,6 +121,10 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
     {
         var tokens = await _applicationDbContext.PasswordResetTokens
             .Where(t => t.UsuarioId == usuarioId && !t.Used).ToListAsync();
+
+        // var tokens = await _applicationDbContext.PasswordResetTokens
+        //.Where(t => t.UsuarioId == usuarioId && (t.Used == false || t.Used == null))
+        //.ToListAsync();
 
         foreach (var token in tokens)
             token.Used = true;
