@@ -20,9 +20,8 @@ public class EmailService : IEmailService
         var smtp = _configuration["EmailSettings:Smtp"];
         var port = int.Parse(_configuration["EmailSettings:Port"]!);
         var from = _configuration["EmailSettings:From"];
-
-        var user = Environment.GetEnvironmentVariable("EMAIL_USER");
-        var password = Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
+        var user = _configuration["EmailSettings:EMAIL_USER"];
+        var password = _configuration["EmailSettings:EMAIL_PASSWORD"];
 
         if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
             throw new Exception("Credenciales de correo no configuradas");

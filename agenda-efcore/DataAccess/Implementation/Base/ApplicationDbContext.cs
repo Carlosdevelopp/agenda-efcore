@@ -48,16 +48,14 @@ public class ApplicationDbContext : DbContext
                   .IsRequired();
 
             entity.Property(x => x.Used)
-                  .IsRequired()
                   .HasDefaultValue(false);
 
-            entity.Property(e => e.CreatedAT)
+            entity.Property(e => e.CreatedAt)
                   .HasDefaultValueSql("GETUTCDATE()");
 
-            entity.HasOne<Usuario>()
+            entity.HasOne(t => t.Usuario)
                   .WithMany()
-                  .HasForeignKey(t => t.UsuarioId)
-                  .OnDelete(DeleteBehavior.Cascade);
+                  .HasForeignKey(t => t.UsuarioId);
         });
     }
 }

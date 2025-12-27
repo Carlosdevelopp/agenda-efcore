@@ -122,10 +122,6 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         var tokens = await _applicationDbContext.PasswordResetTokens
             .Where(t => t.UsuarioId == usuarioId && !t.Used).ToListAsync();
 
-        // var tokens = await _applicationDbContext.PasswordResetTokens
-        //.Where(t => t.UsuarioId == usuarioId && (t.Used == false || t.Used == null))
-        //.ToListAsync();
-
         foreach (var token in tokens)
             token.Used = true;
 

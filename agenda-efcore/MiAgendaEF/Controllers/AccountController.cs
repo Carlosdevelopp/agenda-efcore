@@ -115,9 +115,14 @@ public class AccountController : Controller
     public IActionResult ResetPassword(string token)
     {
         if (String.IsNullOrWhiteSpace(token))
-            return BadRequest();
+            return BadRequest("Token inválido");
 
-        return View(new ResetPasswordViewModel { Token = token });
+        var model = new ResetPasswordViewModel
+        {
+            Token = token
+        };
+
+        return View(model);
     }
 
     [HttpPost]
