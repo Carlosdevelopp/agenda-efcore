@@ -1,6 +1,7 @@
 ﻿using DataAccess.Contract;
 using DataAccess.Models.Tables;
 using Infrastructure.Contract;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Configuration;
@@ -116,16 +117,11 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 
         await _miAgendaDataAccess.CreatePasswordResetTokenAsync(resetToken);
 
-        var baseUrl = _configuration["AppSettings:BaseUrl"];
-
-        var resetLink = $"{baseUrl}/Account/ResetPassword?token={Uri.EscapeDataString(rawToken)}";
-
         //Envío de email
-        await _emailService.SendPasswordResetAsync
-            (
+        await _emailService.SendPasswordResetAsync(
             usuario.Correo,
             usuario.NombreUsuario,
-            resetLink
+            rawToken
             );
 
         return (true, "Si el correo existe, recibirás instrucciones para restablecer tu contraseña.");

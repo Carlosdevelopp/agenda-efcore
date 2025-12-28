@@ -1,4 +1,5 @@
 ﻿using Infrastructure.Contract;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using System.Net;
@@ -9,13 +10,29 @@ namespace Infrastructure.Services;
 public class EmailService : IEmailService
 {
     private readonly IConfiguration _configuration;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public EmailService(IConfiguration configuration)
+    public EmailService(IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
     {
         _configuration = configuration;
+        _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task SendPasswordResetAsync(string toEmail, string userName, string resetLink)
+    private string BuildBaseUrl()
+    {
+        // Producción
+        var baseUrl = _configuration["AppSettings:BaseUrl"];
+        if (!string.IsNullOrEmpty(baseUrl))
+            return baseUrl;
+
+        // Local
+        var request = _httpContextAccessor.HttpContext?.Request
+                      ?? throw new InvalidOperationException("HttpContext no disponible");
+
+        return $"{request.Scheme}://{request.Host}";
+    }
+
+    public async Task SendPasswordResetAsync(string toEmail, string userName, string token)
     {
         var smtp = _configuration["EmailSettings:Smtp"];
         var port = int.Parse(_configuration["EmailSettings:Port"]!);
@@ -26,12 +43,21 @@ public class EmailService : IEmailService
         if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
             throw new Exception("Credenciales de correo no configuradas");
 
+        var baseUrl = BuildBaseUrl();
+        var resetLink = $"{baseUrl}/Account/ResetPassword?token={token}";
+
+        var body = $@"<p>Hola <strong>{userName}</strong>,</p>
+                      <p>Haz clic en el siguiente enlace para restablecertu contraseña:</p>
+                      <p><a href='{resetLink}'>{resetLink}</a></p>
+                      <p>Este enlace expira en 1 hora.</p>
+        ";  
+
         var message = new MailMessage
         {
             From = new MailAddress(from!),
             Subject = "Restablecer contraseña",
-            Body = $@" Hola {userName}, Haz clic en el siguiente enlace para restablecer tu contraseña: {resetLink} Este enlace expira en 1 hora.",
-            IsBodyHtml = false
+            Body = body,
+            IsBodyHtml = true
         };
 
         message.To.Add(toEmail);
