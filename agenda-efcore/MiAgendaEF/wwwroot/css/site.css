@@ -1,54 +1,141 @@
-html {
-  font-size: 14px;
+/* --- VARIABLES --- */
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --accent-cyan: #00d2ff;
+    --accent-gold: #ffcc00; /* Mantenemos el oro por se usa la tarjeta de cumpleañero */
+    --accent-red: #ff4757;
+    --text-white: #ffffff;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
+/* --- BASE --- */
 body {
-  margin-bottom: 60px;
+    background: radial-gradient(circle at top right, #1e293b, #0f172a, #020617) !important;
+    color: var(--text-white);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    margin: 0;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* --- NAVEGACIÓN --- */
+.glass-nav {
+    background: rgba(15, 23, 42, 0.8) !important;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 12px 0;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+.stats-pill {
+    background: rgba(0, 210, 255, 0.1);
+    color: var(--accent-cyan);
+    border: 1px solid rgba(0, 210, 255, 0.2);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-weight: 800;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
 }
 
-html,
-body {
-    height: 100%;
+.user-avatar-frame {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-cyan);
+    object-fit: cover;
 }
 
-body {
+/* --- BOTONES Y BUSCADOR --- */
+.search-glass-dark {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    padding: 8px 8px 8px 25px;
     display: flex;
     align-items: center;
-    padding-top: 40px;
-    padding-bottom: 40px;
-    background-color: #f5f5f5;
 }
 
-.form-control:focus {
-    background-color: #f8f9fa !important;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1) !important;
-    border: none !important;
+/* Corregido: Input dentro del buscador para que no herede bordes de Bootstrap */
+.search-glass-dark input {
+    background: transparent;
+    border: none;
+    color: white;
+    outline: none;
+    width: 100%;
 }
 
-.hover-dark:hover {
-    color: #212529 !important;
+.btn-search-neon {
+    background: var(--accent-cyan);
+    color: #020617;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 25px;
+    font-weight: 800;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.btn-search-neon:hover {
+    background: #ffffff;
+    box-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.btn-logout-pro {
+    background: rgba(255, 71, 87, 0.1);
+    color: var(--accent-red);
+    border: 1px solid rgba(255, 71, 87, 0.3);
+    padding: 8px 18px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-logout-pro:hover {
+    background: var(--accent-red);
+    color: white;
+}
+
+/* --- TARJETA DE FORMULARIO (LOGIN/REGISTRO) --- */
+.auth-card-pro {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 32px;
+    padding: 3rem;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
+}
+
+.input-field-pro {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 16px !important;
+    padding: 12px 20px !important;
+    color: white !important;
+    transition: 0.3s;
+    width: 100%;
+}
+
+.input-field-pro:focus {
+    border-color: var(--accent-cyan) !important;
+    box-shadow: 0 0 15px rgba(0, 210, 255, 0.2) !important;
+    outline: none;
+}
+
+.label-pro {
+    color: var(--accent-cyan);
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* Evitar el color amarillo/blanco de autocompletado de Google */
+input:-webkit-autofill {
+    -webkit-text-fill-color: white !important;
+    -webkit-box-shadow: 0 0 0px 1000px #0f172a inset !important;
 }

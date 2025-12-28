@@ -15,14 +15,12 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     private readonly IMiAgendaDataAccess _miAgendaDataAccess;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IEmailService _emailService;
-    private readonly IConfiguration _configuration;
 
-    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess, IPasswordHasher passwordHasher, IEmailService emailService,  IConfiguration configuration)
+    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess, IPasswordHasher passwordHasher, IEmailService emailService)
     {
         _miAgendaDataAccess = miAgendaDataAccess;
         _passwordHasher = passwordHasher;
         _emailService = emailService;
-        _configuration = configuration;
     }
 
     #region GET

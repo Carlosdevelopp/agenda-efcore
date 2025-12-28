@@ -10,69 +10,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Regístrate</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
-<body>
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-6 col-lg-5">
+<body class="bg-white">
+    <div class="container-fluid p-0">
+        <div class="row g-0 min-vh-100">
 
-            <form asp-controller="Account" asp-action="Register" method="post" class="p-4 border rounded-3 shadow-sm bg-light">
-
-                <h2 class="text-center mb-4">Regístrate</h2>
-
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                <div class="mb-3">
-                    <label asp-for="Nombre" class="form-label"></label>
-                    <input asp-for="Nombre" class="form-control" placeholder="Tu nombre">
-                    <span asp-validation-for="Nombre" class="text-danger"></span>
+            <div class="col-lg-4 d-none d-lg-flex align-items-center justify-content-center bg-dark text-white p-5"
+                 style="background: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=1200&q=80'); background-size: cover; background-position: center;">
+                <div class="text-center">
+                    <h1 class="display-4 fw-bold mb-4">Únete a nosotros</h1>
+                    <p class="lead opacity-75">Comienza a organizar tu tiempo de manera profesional hoy mismo.</p>
+                    <div class="mt-5">
+                        <a asp-action="Login" class="btn btn-outline-light rounded-pill px-4">¿Ya tienes cuenta? Entra aquí</a>
+                    </div>
                 </div>
+            </div>
 
-                <div class="mb-3">
-                    <label asp-for="PrimerApellido" class="form-label"></label>
-                    <input asp-for="PrimerApellido" class="form-control" placeholder="Primer Apellido">
-                    <span asp-validation-for="PrimerApellido" class="text-danger"></span>
-                </div>
+            <div class="col-lg-8 d-flex align-items-center justify-content-center bg-white py-5">
+                <div class="px-4 px-md-5 w-100" style="max-width: 800px;">
 
-                <div class="mb-3">
-                    <label asp-for="SegundoApellido" class="form-label"></label>
-                    <input asp-for="SegundoApellido" class="form-control" placeholder="Segundo Apellido">
-                    <span asp-validation-for="SegundoApellido" class="text-danger"></span>
-                </div>
+                    <div class="mb-4">
+                        <h2 class="fw-bold text-dark">Crear cuenta nueva</h2>
+                        <p class="text-muted">Completa los datos para configurar tu agenda personal.</p>
+                    </div>
 
-                <div class="mb-3">
-                    <label asp-for="Correo" class="form-label"></label>
-                    <input asp-for="Correo" class="form-control" placeholder="correo@ejemplo.com">
-                    <span asp-validation-for="Correo" class="text-danger"></span>
-                </div>
+                    <form asp-controller="Account" asp-action="Register" method="post">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
 
-                <div class="mb-3">
-                    <label asp-for="NombreUsuario" class="form-label"></label>
-                    <input asp-for="NombreUsuario" class="form-control" placeholder="Usuario">
-                    <span asp-validation-for="NombreUsuario" class="text-danger"></span>
-                </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Nombre" class="form-label small fw-bold text-secondary text-uppercase">Nombre</label>
+                                <div class="position-relative">
+                                    <i class="bi bi-person position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                                    <input asp-for="Nombre" class="form-control bg-light border-0 ps-5 py-2" placeholder="Tu nombre" />
+                                </div>
+                                <span asp-validation-for="Nombre" class="text-danger small"></span>
+                            </div>
 
-                <div class="mb-3">
-                    <label asp-for="Password" class="form-label"></label>
-                    <input asp-for="Password" class="form-control" placeholder="Mín. 7 caracteres">
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="PrimerApellido" class="form-label small fw-bold text-secondary text-uppercase">Primer Apellido</label>
+                                <input asp-for="PrimerApellido" class="form-control bg-light border-0 py-2 px-3" placeholder="Apellido paterno" />
+                                <span asp-validation-for="PrimerApellido" class="text-danger small"></span>
+                            </div>
 
-                <div class="mb-3">
-                    <label asp-for="ConfirmPassword" class="form-label"></label>
-                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Repite la contraseña">
-                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="SegundoApellido" class="form-label small fw-bold text-secondary text-uppercase">Segundo Apellido</label>
+                                <input asp-for="SegundoApellido" class="form-control bg-light border-0 py-2 px-3" placeholder="Apellido materno" />
+                                <span asp-validation-for="SegundoApellido" class="text-danger small"></span>
+                            </div>
 
-                <div class="mb-3">
-                    <label asp-for="Telefono" class="form-label"></label>
-                    <input asp-for="Telefono" class="form-control" placeholder="Telefono">
-                    <span asp-validation-for="Telefono" class="text-danger"></span>
-                </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="NombreUsuario" class="form-label small fw-bold text-secondary text-uppercase">Usuario</label>
+                                <div class="position-relative">
+                                    <i class="bi bi-at position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                                    <input asp-for="NombreUsuario" class="form-control bg-light border-0 ps-5 py-2" placeholder="Nombre de usuario" />
+                                </div>
+                                <span asp-validation-for="NombreUsuario" class="text-danger small"></span>
+                            </div>
 
-                <div class="d-grid mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg">Registrarme</button>
+                            <div class="col-md-12 mb-3">
+                                <label asp-for="Correo" class="form-label small fw-bold text-secondary text-uppercase">Correo Electrónico</label>
+                                <div class="position-relative">
+                                    <i class="bi bi-envelope position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                                    <input asp-for="Correo" class="form-control bg-light border-0 ps-5 py-2" placeholder="correo@ejemplo.com" />
+                                </div>
+                                <span asp-validation-for="Correo" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Password" class="form-label small fw-bold text-secondary text-uppercase">Contraseña</label>
+                                <div class="position-relative">
+                                    <i class="bi bi-lock position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                                    <input asp-for="Password" type="password" class="form-control bg-light border-0 ps-5 py-2" placeholder="••••••••" />
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ConfirmPassword" class="form-label small fw-bold text-secondary text-uppercase">Confirmar</label>
+                                <div class="position-relative">
+                                    <i class="bi bi-shield-check position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                                    <input asp-for="ConfirmPassword" type="password" class="form-control bg-light border-0 ps-5 py-2" placeholder="••••••••" />
+                                </div>
+                                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-12 mb-4">
+                                <label asp-for="Telefono" class="form-label small fw-bold text-secondary text-uppercase">Teléfono</label>
+                                <div class="position-relative">
+                                    <i class="bi bi-telephone position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                                    <input asp-for="Telefono" class="form-control bg-light border-0 ps-5 py-2" placeholder="+52 ..." />
+                                </div>
+                                <span asp-validation-for="Telefono" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold shadow-sm rounded-3">
+                                Crear mi Agenda ahora <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                            <div class="text-center mt-3 d-lg-none">
+                                <a asp-action="Login" class="text-decoration-none small fw-bold">¿Ya tienes cuenta? Inicia sesión</a>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </body>
