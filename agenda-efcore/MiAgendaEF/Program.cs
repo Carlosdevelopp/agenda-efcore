@@ -20,7 +20,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddSession();
 
-//builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpContextAccessor();
 //builder.Services.AddDistributedMemoryCache();
 
 //Loggings
