@@ -10,44 +10,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Crear nuevo contacto</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-6 col-lg-5">
+    <div class="container py-5">
+        <div class="row justify-content-center align-items-center min-vh-100">
+            <div class="col-md-7 col-lg-5">
 
-            <form asp-controller="Account" asp-action="Register" method="post" class="p-4 border rounded-3 shadow-sm bg-light">
-                <h2 class="text-center mb-4">Regístrate</h2>
+                <div class="auth-card-pro">
+                    <div class="text-center mb-5">
+                        <div class="mb-3">
+                            <i class="bi bi-person-circle text-info" style="font-size: 3rem;"></i>
+                        </div>
+                        <h2 class="fw-bold text-white mb-1">Registro</h2>
+                        <p class="text-muted small">Crea un nuevo perfil administrativo</p>
+                    </div>
 
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <form asp-controller="Account" asp-action="Register" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-4 text-center"></div>
 
-                <div class="mb-3">
-                    <label asp-for="Nombre" class="form-label"></label>
-                    <input asp-for="Nombre" class="form-control" placeholder="Tu nombre">
-                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                        <div class="mb-4">
+                            <label asp-for="Nombre" class="label-pro">Nombre Completo</label>
+                            <input asp-for="Nombre" class="input-field-pro w-100" placeholder="Escribe tu nombre">
+                            <span asp-validation-for="Nombre" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-6">
+                                <label asp-for="PrimerApellido" class="label-pro">1er Apellido</label>
+                                <input asp-for="PrimerApellido" class="input-field-pro w-100" placeholder="Paterno">
+                                <span asp-validation-for="PrimerApellido" class="text-danger small"></span>
+                            </div>
+                            <div class="col-6">
+                                <label asp-for="SegundoApellido" class="label-pro">2do Apellido</label>
+                                <input asp-for="SegundoApellido" class="input-field-pro w-100" placeholder="Materno">
+                                <span asp-validation-for="SegundoApellido" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="FechaNacimiento" class="label-pro">Fecha de Nacimiento</label>
+                            <input asp-for="FechaNacimiento" type="date" class="input-field-pro w-100" style="color-scheme: dark;">
+                            <span asp-validation-for="FechaNacimiento" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn-search-neon py-3 fw-bold">
+                                CONFIRMAR REGISTRO
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <a asp-action="Login" class="text-muted small text-decoration-none">
+                                ¿Ya tienes cuenta? <span class="text-info fw-bold">Inicia Sesión</span>
+                            </a>
+                        </div>
+                    </form>
                 </div>
-
-                <div class="mb-3">
-                    <label asp-for="PrimerApellido" class="form-label"></label>
-                    <input asp-for="PrimerApellido" class="form-control" placeholder="Primer Apellido">
-                    <span asp-validation-for="PrimerApellido" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="SegundoApellido" class="form-label"></label>
-                    <input asp-for="SegundoApellido" class="form-control" placeholder="Segundo Apellido">
-                    <span asp-validation-for="SegundoApellido" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3">
-                    <label asp-for="FechaNacimiento" class="form-label"></label>
-                    <input asp-for="FechaNacimiento" class="form-control" placeholder="correo@ejemplo.com">
-                    <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
-                </div>
-
-                <div class="d-grid mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg">Guardar</button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </body>
