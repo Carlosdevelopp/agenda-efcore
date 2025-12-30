@@ -41,7 +41,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     #endregion
 
     #region POST
-    public async Task<(bool Success, string Message)> RegisterAsync(Usuario model)
+    public async Task<(bool Success, string Message)> RegisterUserAsync(Usuario model)
     {
         bool existe = await _miAgendaDataAccess.ExistsAsync(model.Correo, model.NombreUsuario);
 

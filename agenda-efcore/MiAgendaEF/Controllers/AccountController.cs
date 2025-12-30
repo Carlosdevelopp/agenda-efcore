@@ -2,24 +2,34 @@
 using DataAccess.Models.Tables;
 using Infrastructure.Contract;
 using MiAgendaEF.Models.ViewModels;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Security.Claims;
 
 namespace MiAgendaEF.Controllers;
 
 public class AccountController : Controller
 {
     private readonly IMiAgendaInfrastructure _miAgendaInfrastructure;
+    private readonly ILogger<AccountController> _logger;
 
-    public AccountController(IMiAgendaInfrastructure miAgendaInfrastructure)
+    public AccountController(IMiAgendaInfrastructure miAgendaInfrastructure, ILogger<AccountController> logger)
     {
-
         _miAgendaInfrastructure = miAgendaInfrastructure;
+        _logger = logger;
     }
 
     [HttpGet]
     public IActionResult Login()
     {
+        //Si  ya está autenticado, redirige
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+
         return View();
     }
 
@@ -39,32 +49,60 @@ public class AccountController : Controller
                 return View(model);
             }
 
-            // Guardar datos de sesión
-            HttpContext.Session.SetString("UsuarioId", usuario.UsuarioId.ToString());
-            HttpContext.Session.SetString("UsuarioNombre", usuario.Nombre);
+            //Crear claims (información del usuario)
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, usuario.UsuarioId.ToString()),
+                new Claim(ClaimTypes.Email, usuario.Correo),
+                new Claim(ClaimTypes.Name,  usuario.NombreUsuario),
+                //Claim personalizado
+                new Claim("FullName", usuario.NombreUsuario)
+            };
 
-            return RedirectToAction("Index", "Contacts");
+            //Crear identidad
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+            //Propiedades de autenticación
+            var authProperties = new AuthenticationProperties
+            {
+                //Cookie persistente
+                IsPersistent = model.Recordarme,
+                ExpiresUtc = model.Recordarme ? DateTimeOffset.UtcNow.AddDays(30) : DateTimeOffset.UtcNow.AddHours(2),
+                IssuedUtc = DateTimeOffset.UtcNow
+            };
+
+            //Iniciar sesión
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+            //Redirigir URL de retorno
+            var returnUrL = Request.Query["returnUrl"].ToString();
+            if (!string.IsNullOrEmpty(returnUrL) && Url.IsLocalUrl(returnUrL))
+                return Redirect(returnUrL);
+
+            return RedirectToAction("Index", "Home");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Aquí podrías loguear el error: _logger.LogError(ex.Message);
+            _logger.LogError(ex, "Error en login para usuario: {Credencial}", model.Credencial);
             ModelState.AddModelError("", "Error al iniciar sesión.");
             return View(model);
         }
     }
 
-    [HttpGet]
-    public IActionResult Logout()
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> Logout()
     {
         try
         {
-            HttpContext.Session.Clear();
-            Response.Cookies.Delete("Usuario Recordado");
-            return View("Login");
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction(nameof(Login));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return RedirectToAction("Login");
+            _logger.LogError(ex, "Error al cerrar sesión");
+            return RedirectToAction(nameof(Login));
         }
     }
 
@@ -93,20 +131,20 @@ public class AccountController : Controller
                 Telefono = model.Telefono,
             };
 
-            var result = await _miAgendaInfrastructure.RegisterAsync(usuario);
+            var result = await _miAgendaInfrastructure.RegisterUserAsync(usuario);
 
             if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, result.Message);
+                ModelState.AddModelError("", result.Message);
                 return View(model);
             }
 
-            TempData["success"] = result.Message;
-            return RedirectToAction("Login");
+            TempData["SuccessMessage"] = "Registro exitoso. Inicia sesión.";
+            return RedirectToAction(nameof(Login));
         }
         catch (Exception)
         {
-            ModelState.AddModelError(string.Empty, "Ocurrio un error al registrar  el  usuario.");
+            ModelState.AddModelError("", "Ocurrio un error al registrar el usuario.");
             return View(model);
         }
     }
@@ -138,17 +176,17 @@ public class AccountController : Controller
 
             if (!result.Success)
             {
-                ModelState.AddModelError("", result.Message);
-                return View(model);
+                TempData["ErrorMessage"] = result.Message;
+                return RedirectToAction("Login");
             }
 
-            TempData["SuccessMessage"] = result.Message;
-            return RedirectToAction("Login");
+            TempData["SuccessMessage"] = "Contraseña restablecida exitosamente. Inicia sesión.";
+            return RedirectToAction(nameof(Login));
         }
         catch (Exception ex)
         {
-            TempData["Error"] = ex.Message;
-            return  View (model);
+            _logger.LogError(ex, "Error en ResetPassword");
+            return View(model);
         }
     }
 
@@ -167,15 +205,22 @@ public class AccountController : Controller
 
         try
         {
-            var result = await _miAgendaInfrastructure.ForgotPasswordAsync(model.Email);
-            TempData["InfoMessage"] = result.Message;
+            await _miAgendaInfrastructure.ForgotPasswordAsync(model.Email);
+            TempData["InfoMessage"] = "Si el correo existe, recibirás instrucciones para restablecer tu contraseña.";
 
-            return RedirectToAction("Login");
+            return RedirectToAction(nameof(Login));
         }
         catch (Exception ex)
         {
-            TempData["Error"] = ex.Message;
+            _logger.LogError(ex, "Error en ForgotPassword para: {Email}", model.Email);
             return View(model);
         }
+    }
+
+    [HttpGet]
+    public IActionResult AccessDenied()
+    {
+        _logger.LogWarning("Acceso denegado para usuario: {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
+        return View();
     }
 }
