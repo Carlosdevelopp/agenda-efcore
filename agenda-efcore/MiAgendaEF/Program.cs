@@ -5,9 +5,12 @@ using Infrastructure.Contract;
 using Infrastructure.Implementation;
 using Infrastructure.Implementation.Security;
 using Infrastructure.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MI_AGENDA_CONNECTION")));
 
@@ -17,7 +20,25 @@ builder.Services.AddScoped<IMiAgendaDataAccess, MiAgendaDataAccess>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
-builder.Services.AddControllersWithViews();
+//Agregar autenticación con cookies
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+
+    options.Cookie.Name = "MiApp.Auth";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    options.SlidingExpiration = true;
+});
+
+//Agregar autorización
+builder.Services.AddAuthorization();
+
 builder.Services.AddSession();
 
 builder.Services.AddHttpContextAccessor();
@@ -39,8 +60,11 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

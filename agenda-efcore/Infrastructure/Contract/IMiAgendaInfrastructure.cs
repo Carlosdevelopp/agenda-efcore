@@ -10,7 +10,7 @@ public interface IMiAgendaInfrastructure
     #endregion
 
     #region POST
-    Task<(bool Success, string Message)> RegisterAsync(Usuario model);
+    Task<(bool Success, string Message)> RegisterUserAsync(Usuario model);
     #endregion
 
     #region UPDATE
