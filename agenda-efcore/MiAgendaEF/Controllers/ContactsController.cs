@@ -1,32 +1,52 @@
 ﻿using Infrastructure.Contract;
 using MiAgendaEF.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace MiAgendaEF.Controllers;
 
+[Authorize]
 public class ContactsController : Controller
 {
     private readonly IMiAgendaInfrastructure _miAgendaInfrastructure;
+    private readonly ILogger<ContactsController> _logger;
 
-	public ContactsController(IMiAgendaInfrastructure miAgendaInfrastructure)
+	public ContactsController(IMiAgendaInfrastructure miAgendaInfrastructure, ILogger<ContactsController> logger)
 	{
+
 		_miAgendaInfrastructure = miAgendaInfrastructure;
+        _logger = logger;
 	}
 
     #region GET
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         try
         {
-            var usuarioIdStr = HttpContext.Session.GetString("UsuarioId");
-            if (string.IsNullOrEmpty(usuarioIdStr)) return RedirectToAction("Login", "Account");
+            // Pon un breakpoint aquí y mira si "UsuarioId" está en la lista de keys.
+            var usuarioIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var nombreUsuario = User.FindFirstValue(ClaimTypes.Name);
 
-            int usuarioId = int.Parse(usuarioIdStr);
-            var nombreUsuario = HttpContext.Session.GetString("UsuarioNombre");
+            if (string.IsNullOrEmpty(usuarioIdStr))
+            {
+                TempData["ErrorMessage"] = "Debes iniciar sesión.";
+                return RedirectToAction("Login", "Account");
+            }
 
-            // Intento obtener los contactos de la infraestructura
+            //Convierte a int
+            if (!int.TryParse(usuarioIdStr, out int usuarioId))
+            {
+                _logger.LogError("Usuario invalido: {usuarioIdStr}", usuarioIdStr);
+                TempData["ErrorMessage"] = "Error al obtener tu usuario.";
+                return RedirectToAction("Login", "Account");
+            }
+           
+            // Intento obtener los contactos de la capa infraestructura
             var contactos = await _miAgendaInfrastructure.GetContactByIdAsync(usuarioId);
 
+            //Crea ViewModel
             var agendaViewModel = new AgendaViewModel
             {
                 Titulo = $"Agenda de {nombreUsuario}",
@@ -37,16 +57,20 @@ public class ContactsController : Controller
                     NombreCompleto = $"{u.Nombre} {u.PrimerApellido}",
                     Telefono = u.Telefono,
                     Edad = _miAgendaInfrastructure.CalcularEdad(u.FechaNacimiento),
-                    RedesSociales = u.Detalle?.Select(d => new RedSocialViewModel { URL = d.URL }).ToList()
-                                    ?? new List<RedSocialViewModel>()
+                    RedesSociales = u.Detalle?.Select(d => new RedSocialViewModel 
+                    {
+                        URL = d.URL
+                    }).ToList() ?? new List<RedSocialViewModel>()
                 }).ToList() ?? new List<ContactoViewModel>()
             };
 
             return View("Agenda", agendaViewModel);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // Si algo falla, redirigimos a una página de error o al Login con un mensaje
+
+            _logger.LogError(ex, "Error al cargar agenda del usuario.");
             TempData["ErrorMessage"] = "No se pudieron cargar tus contactos. Por favor, reintenta.";
             return RedirectToAction("Login", "Account");
         }
