@@ -21,16 +21,42 @@ public class AccountController : Controller
         _logger = logger;
     }
 
+    public IActionResult Index()
+    {
+        try
+        {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index", "Contacts");
+            }
+            return RedirectToAction(nameof(Login));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error en Index de Account");
+            return RedirectToAction(nameof(Login));
+        }
+    }
+
     [HttpGet]
     public IActionResult Login()
     {
-        //Si  ya está autenticado, redirige
-        if (User.Identity?.IsAuthenticated == true)
+        try
         {
-            return RedirectToAction("Index", "Home");
+            //Si  ya está autenticado, redirige
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index", "Contacts");
+            }
+
+            return View();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al cargar Login");
+            return View();
         }
 
-        return View();
     }
 
     [HttpPost]
@@ -53,8 +79,7 @@ public class AccountController : Controller
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.UsuarioId.ToString()),
-                new Claim(ClaimTypes.Email, usuario.Correo),
-                new Claim(ClaimTypes.Name,  usuario.NombreUsuario),
+                new Claim(ClaimTypes.Name, usuario.NombreUsuario),
                 //Claim personalizado
                 new Claim("FullName", usuario.NombreUsuario)
             };
@@ -79,37 +104,33 @@ public class AccountController : Controller
             if (!string.IsNullOrEmpty(returnUrL) && Url.IsLocalUrl(returnUrL))
                 return Redirect(returnUrL);
 
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Contacts");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error en login para usuario: {Credencial}", model.Credencial);
-            ModelState.AddModelError("", "Error al iniciar sesión.");
+            ModelState.AddModelError("", "Error al iniciar sesión. Intenta nuevamente.");
             return View(model);
-        }
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize]
-    public async Task<IActionResult> Logout()
-    {
-        try
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction(nameof(Login));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error al cerrar sesión");
-            return RedirectToAction(nameof(Login));
         }
     }
 
     [HttpGet]
     public IActionResult Register()
     {
-        return View();
+        try
+        {
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                return RedirectToAction("Index", "Contacts");
+            }
+            return View();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al cargar Register.");
+            return View();
+        }
+
     }
 
     [HttpPost]
@@ -149,18 +170,48 @@ public class AccountController : Controller
         }
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        try
+        {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return RedirectToAction(nameof(Login));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al cerrar sesión");
+            return RedirectToAction(nameof(Login));
+        }
+    }
+
     [HttpGet]
     public IActionResult ResetPassword(string token)
     {
-        if (String.IsNullOrWhiteSpace(token))
-            return BadRequest("Token inválido");
-
-        var model = new ResetPasswordViewModel
+        try
         {
-            Token = token
-        };
+            if (String.IsNullOrWhiteSpace(token))
+            {
+                TempData["ErrorMessage"] = "El enlace es inválido o ha expirado.";
+                return RedirectToAction(nameof(Login));
+            }
+               
+            var model = new ResetPasswordViewModel
+            {
+                Token = token
+            };
 
-        return View(model);
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al cargar ResetPassword");
+            TempData["ErrorMessage"] = "Ocurrió un error. Intenta nuevamente.";
+            return RedirectToAction(nameof(Login));
+        }
+
     }
 
     [HttpPost]
@@ -193,7 +244,15 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult ForgotPassword()
     {
-        return View();
+        try
+        {
+            return View();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al cargar ForgotPassword");
+            return View();
+        }
     }
 
     [HttpPost]
@@ -220,7 +279,15 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult AccessDenied()
     {
-        _logger.LogWarning("Acceso denegado para usuario: {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
-        return View();
+        try
+        {
+            _logger.LogWarning("Acceso denegado para usuario: {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return View();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al cargar AccessDenied");
+            return View();
+        }
     }
 }
