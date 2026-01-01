@@ -56,7 +56,6 @@ public class AccountController : Controller
             _logger.LogError(ex, "Error al cargar Login");
             return View();
         }
-
     }
 
     [HttpPost]
@@ -178,7 +177,7 @@ public class AccountController : Controller
         try
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction(nameof(Login));
+            return RedirectToAction(nameof(Login), "Account");
         }
         catch (Exception ex)
         {
