@@ -6,7 +6,7 @@ public class Contacto
     public int UsuarioId { get; set; }
     public string Nombre { get; set; } = null!;
     public string PrimerApellido { get; set; } = null!;
-    public string SegundoApellido { get; set; } = null!;
+    public string? SegundoApellido { get; set; } 
     public DateTime FechaNacimiento { get; set; }
     public string FotoRuta { get; set; } = null!;
     public DateTime FechaRegistro { get; set; }

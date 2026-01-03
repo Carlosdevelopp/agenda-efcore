@@ -1,4 +1,5 @@
 ﻿using Agenda.EFCore.Controllers;
+using DataAccess.Models.Tables;
 using Infrastructure.Contract;
 using MiAgendaEF.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -39,7 +40,7 @@ public class ContactsController : BaseController
             }
 
             // Intento obtener los contactos de la capa infraestructura
-            var contactos = await _miAgendaInfrastructure.GetContactByIdAsync(usuarioId);
+            var contactos = await _miAgendaInfrastructure.GetContactsByUserIdAsync(usuarioId);
 
             //Crea ViewModel
             var agendaViewModel = new AgendaViewModel
@@ -72,62 +73,141 @@ public class ContactsController : BaseController
     }
     #endregion
 
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View();
+    }
+
     [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateContactViewModel model)
     {
         try
         {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
             var UsuarioId = GetCurrentUserId();
 
             if (UsuarioId == 0)
             {
+                TempData["ErrorMessage"] = "Debes iniciar sesión";
                 return RedirectToAction("Login", "Account");
             }
 
-            var usuario = new CreateContactViewModel
+            var contacto = new Contacto
             {
                 Nombre = model.Nombre,
                 PrimerApellido = model.PrimerApellido,
                 SegundoApellido = model.SegundoApellido,
                 FechaNacimiento = model.FechaNacimiento,
-                FotoArchivo = model.FotoArchivo,
                 Telefono = model.Telefono,
+                UsuarioId = model.UsuarioId
             };
 
-            return View("Create");
-        }
-        catch (Exception)
-        {
+            var result = await _miAgendaInfrastructure.CreateContactAsync(contacto);
 
-            throw;
+            if (result != null)
+            {
+                TempData["SuccessMessage"] = "Contacto creado exitosamente.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            ModelState.AddModelError("", "No se pudo crear el contacto.");
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al crear contacto.");
+            TempData["ErrorMessage"] = "Error al crear el contacto.";
+            return View(model);
         }
     }
 
-    [HttpPut]
-    public async Task<IActionResult> Update()
+    [HttpGet]
+    public async Task<IActionResult> Update(int contactoId, Contacto model)
     {
         try
         {
+            var usuarioId = GetCurrentUserId();
+            if (usuarioId == 0)
+            {
+                TempData["ErrorMessage"] = "Debes iniciar sesión.";
+                return RedirectToAction("Login", "Account");
+            }
 
+            var contactoExistente = await _miAgendaInfrastructure.GetContactByIdAsync(contactoId);
+
+            if (contactoExistente == null)
+            {
+                TempData["ErrorMessage"] = "Contacto no encontrado.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            // Validación de seguridad
+            if (contactoExistente.UsuarioId != usuarioId)
+            {
+                TempData["ErrorMessage"] = "No tienes permiso para editar este contacto.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            contactoExistente.Nombre = model.Nombre;
+            contactoExistente.PrimerApellido = model.PrimerApellido;
+            contactoExistente.SegundoApellido = model.SegundoApellido;
+            contactoExistente.Telefono = model.Telefono;
+
+            var result = await _miAgendaInfrastructure.UpdateContactAsync(model);
+
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Contacto actualizado correctamente.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            ModelState.AddModelError("","No se pudo actualizar el contacto.");
+            return View(model);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
-            throw;
+            _logger.LogError(ex, "Error al actualizar el contacto.");
+            TempData["ErrorMessage"] = "Error al actualizar el contacto.";
+            return View(model);
         }
     }
 
     [HttpDelete]
-    public async Task<IActionResult> Delete()
+    public async Task<IActionResult> Delete(int contactoId)
     {
         try
         {
+            var usuarioId = GetCurrentUserId();
+            if (usuarioId == 0)
+            {
+                TempData["ErrorMessage"] = "Necesitas iniciar sesión.";
+                return RedirectToAction("Login", "Account");
+            }
 
+            var result = await _miAgendaInfrastructure.DeleteContactAsync(contactoId, usuarioId);
+
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Contacto eliminado exitosamente.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "No tienes permiso para eliminar este contacto.";
+            }
+
+            return RedirectToAction(nameof(Index));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
-            throw;
+            _logger.LogError(ex, "Ërror al eliminar contacto.");
+            TempData["ErrorMessage"] = "Error al eliminar el contacto.";
+            return RedirectToAction(nameof(Index));
         }
     } 
 }
