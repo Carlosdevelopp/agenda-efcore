@@ -127,4 +127,39 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
 
         await _applicationDbContext.SaveChangesAsync();
     }
+
+    public async Task<List<Contacto>> GetContactsByUserIdAsync(int usuarioId)
+    {
+        return await _applicationDbContext.Contactos
+            .Include(U => U.Detalle)
+            .Where(U => U.UsuarioId == usuarioId)
+            .OrderBy(U => U.Nombre)
+            .ToListAsync();
+    }  
+
+    public async Task<Contacto?> GetContactByIdAsync(int contactoId)
+    {
+        return await _applicationDbContext.Contactos
+            .Include(U => U.Detalle)
+            .FirstOrDefaultAsync(U => U.ContactoId == contactoId);
+    }
+
+    public async Task<Contacto> CreateContactAsync(Contacto contacto)
+    {
+        _applicationDbContext.Contactos.Add(contacto);
+        await _applicationDbContext.SaveChangesAsync();
+        return contacto;
+    }
+
+    public async Task<bool> UpdateContactAsync(Contacto contacto)
+    {
+        _applicationDbContext.Contactos.Update(contacto);
+        var result = await _applicationDbContext.SaveChangesAsync();
+        return result > 0;
+    }
+
+    public async Task<Contacto> DeleteContactAsync(int contactoId)
+    {
+        var  
+    }
 }
