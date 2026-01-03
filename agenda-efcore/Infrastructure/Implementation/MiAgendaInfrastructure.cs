@@ -1,10 +1,8 @@
 ﻿using DataAccess.Contract;
 using DataAccess.Models.Tables;
 using Infrastructure.Contract;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -34,16 +32,16 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         return _passwordHasher.Verify(usuario.Password, password) ? usuario : null;
     }
 
-    public async Task<List<Contacto>> GetContactByIdAsync(int usuarioId)
+    public async Task<List<Contacto>> GetContactsByUserIdAsync(int usuarioId)
     {
-        return await _miAgendaDataAccess.GetContactById(usuarioId);
+        return await _miAgendaDataAccess.GetContactsByUserIdAsync(usuarioId);
     }
     #endregion
 
     #region POST
     public async Task<(bool Success, string Message)> RegisterUserAsync(Usuario model)
     {
-        bool existe = await _miAgendaDataAccess.ExistsAsync(model.Correo, model.NombreUsuario);
+        bool existe = await _miAgendaDataAccess.ExistsUserAsync(model.Correo, model.NombreUsuario);
 
         if (existe)
             return (false, "Ël correo o nombre de usuario ya está registrado.");
@@ -132,4 +130,37 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         if (FechaNacimiento.Date > hoy.AddYears(-edad)) edad--;
         return edad;
     }
+
+    public async Task<Contacto?> GetContactByIdAsync(int contactoId)
+    {
+        return await _miAgendaDataAccess.GetContactByIdAsync(contactoId);
+    }
+
+    public async Task<Contacto> CreateContactAsync(Contacto model)
+    {
+        return await _miAgendaDataAccess.CreateContactAsync(model);
+    }
+
+    public async Task<bool> UpdateContactAsync(Contacto model)
+    {
+        var contactoExistente = await _miAgendaDataAccess.GetContactByIdAsync(model.ContactoId);
+
+        if (contactoExistente == null) return false;
+
+        contactoExistente.Nombre = model.Nombre;
+        contactoExistente.PrimerApellido = model.PrimerApellido;
+        contactoExistente.SegundoApellido = model.SegundoApellido;
+        contactoExistente.Telefono = model.Telefono;
+
+        return await _miAgendaDataAccess.UpdateContactAsync(contactoExistente);
+    }
+
+    public async Task<bool> DeleteContactAsync(int contactoId, int usuarioId)
+    {
+        var esDueño = await _miAgendaDataAccess.IsContactOwnerAsync(contactoId, usuarioId);
+
+        if (!esDueño) return false;
+
+        return await _miAgendaDataAccess.DeleteContactAsync(contactoId);
+    }  
 }

@@ -14,13 +14,12 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         _applicationDbContext = applicationDbContext;
     }
 
-    #region GET
     public async Task<Usuario?> GetUserByCredentialAsync(string credencial)
     {
         return await _applicationDbContext.Usuarios.FirstOrDefaultAsync(u => u.Correo == credencial || u.NombreUsuario == credencial);
     }
 
-    public async Task<bool> ExistsAsync(string correo, string nombreUsuario)
+    public async Task<bool> ExistsUserAsync(string correo, string nombreUsuario)
     {
         return await _applicationDbContext.Usuarios.AnyAsync(u => u.NombreUsuario == correo || u.Correo == correo);
     }
@@ -30,22 +29,13 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         return await _applicationDbContext.Usuarios.FirstOrDefaultAsync(u => u.UsuarioId == usuarioId);
     }
 
-    public async Task<List<Contacto>> GetContactById(int usuarioId)
-    {
-        return await _applicationDbContext.Contactos.Include(u => u.Detalle).Where(u => u.UsuarioId == usuarioId).ToListAsync();
-    }
-    #endregion
-
-    #region POST
     public async Task<Usuario> RegisterAsync(Usuario usuario)
     {
         _applicationDbContext.Usuarios.Add(usuario);
         await _applicationDbContext.SaveChangesAsync();
         return usuario;
     }
-    #endregion
 
-    #region UPDATE
     public async Task UpdatePasswordAsync(int usuarioId, string PasswordHash)
     {
         var usuario = await _applicationDbContext.Usuarios.FindAsync(usuarioId);
@@ -82,7 +72,6 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
 
         await _applicationDbContext.SaveChangesAsync();
     }
-    #endregion
 
     public async Task CreatePasswordResetTokenAsync(PasswordResetToken token)
     {
@@ -158,8 +147,23 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         return result > 0;
     }
 
-    public async Task<Contacto> DeleteContactAsync(int contactoId)
+    public async Task<bool> DeleteContactAsync(int contactoId)
     {
-        var  
+        var contacto = await _applicationDbContext.Contactos.FirstAsync();
+        if (contacto == null) return false;
+
+        _applicationDbContext.Contactos.Remove(contacto);
+        var result = await _applicationDbContext.SaveChangesAsync();
+        return result > 0;
+    }
+
+    public async Task<bool> ContactExistsAsync(int contactoId)
+    {
+        return await _applicationDbContext.Contactos.AnyAsync(u => u.ContactoId == contactoId);
+    }
+
+    public async Task<bool> IsContactOwnerAsync(int contactoId, int usuarioId)
+    {
+        return await _applicationDbContext.Contactos.AnyAsync(c => c.ContactoId == contactoId && c.UsuarioId == usuarioId);
     }
 }

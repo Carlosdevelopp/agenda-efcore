@@ -6,7 +6,7 @@ public interface IMiAgendaInfrastructure
 {
     #region GET
     Task<Usuario?> LoginAsync(string credencial, string password);
-    Task<List<Contacto>> GetContactByIdAsync(int usuarioId);
+    Task<List<Contacto>> GetContactsByUserIdAsync(int usuarioId);
     #endregion
 
     #region POST
@@ -20,4 +20,12 @@ public interface IMiAgendaInfrastructure
     Task<(bool Success, string Message)> ForgotPasswordAsync(string email);
 
     int CalcularEdad(DateTime FechaNacimiento);
+
+    Task<Contacto?> GetContactByIdAsync(int contactoId);
+
+    Task<Contacto> CreateContactAsync(Contacto model);
+
+    Task<bool> UpdateContactAsync(Contacto model);
+
+    Task<bool> DeleteContactAsync(int contactoId, int usuarioId);
 }

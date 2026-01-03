@@ -4,18 +4,15 @@ namespace DataAccess.Contract;
 
 public interface IMiAgendaDataAccess
 {
-    #region GET
     Task<Usuario?> GetUserByCredentialAsync(string credencial);
 
-    Task<bool> ExistsAsync(string correo, string nombreeUsuario);
+    Task<bool> ExistsUserAsync(string correo, string nombreeUsuario);
 
     Task<Usuario> RegisterAsync(Usuario usuario);
 
     Task<Usuario?> GetUserByIdAsync(int usuarioId);
 
     Task UpdatePasswordAsync(int usuarioId, string passwordHash);
-
-    Task<List<Contacto>> GetContactById(int usuarioId);
 
     Task CreatePasswordResetTokenAsync(PasswordResetToken token);
 
@@ -24,5 +21,18 @@ public interface IMiAgendaDataAccess
     Task MarkPasswordResetTokenUsedAsync(int tokenId);
 
     Task InvalidatePasswordResetTokensAsync(int usuarioId);
-    #endregion
+
+    Task<List<Contacto>> GetContactsByUserIdAsync(int usuarioId);
+
+    Task<Contacto?> GetContactByIdAsync(int contactoId);
+
+    Task<Contacto> CreateContactAsync(Contacto contacto);
+
+    Task<bool> UpdateContactAsync(Contacto contacto);
+
+    Task<bool> DeleteContactAsync(int contactoId);
+
+    Task<bool> ContactExistsAsync(int contactoId);
+
+    Task<bool> IsContactOwnerAsync(int contactoId, int usuarioId);
 }
