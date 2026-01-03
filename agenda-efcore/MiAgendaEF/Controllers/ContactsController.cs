@@ -1,4 +1,5 @@
-﻿using Infrastructure.Contract;
+﻿using Agenda.EFCore.Controllers;
+using Infrastructure.Contract;
 using MiAgendaEF.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ using System.Security.Claims;
 namespace MiAgendaEF.Controllers;
 
 [Authorize]
-public class ContactsController : Controller
+public class ContactsController : BaseController
 {
     private readonly IMiAgendaInfrastructure _miAgendaInfrastructure;
     private readonly ILogger<ContactsController> _logger;
@@ -28,28 +29,22 @@ public class ContactsController : Controller
             // Pon un breakpoint aquí y mira si "UsuarioId" está en la lista de keys.
             var usuarioIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var nombreUsuario = User.FindFirstValue(ClaimTypes.Name);
+            var usuarioId = GetCurrentUserId();
+            var NombreUsuario = GetCurrentUserName();
 
-            if (string.IsNullOrEmpty(usuarioIdStr))
+            if (usuarioId == 0)
             {
                 TempData["ErrorMessage"] = "Debes iniciar sesión.";
                 return RedirectToAction("Login", "Account");
             }
 
-            //Convierte a int
-            if (!int.TryParse(usuarioIdStr, out int usuarioId))
-            {
-                _logger.LogError("Usuario invalido: {usuarioIdStr}", usuarioIdStr);
-                TempData["ErrorMessage"] = "Error al obtener tu usuario.";
-                return RedirectToAction("Login", "Account");
-            }
-           
             // Intento obtener los contactos de la capa infraestructura
             var contactos = await _miAgendaInfrastructure.GetContactByIdAsync(usuarioId);
 
             //Crea ViewModel
             var agendaViewModel = new AgendaViewModel
             {
-                Titulo = $"Agenda de {nombreUsuario}",
+                Titulo = $"Agenda de {NombreUsuario}",
                 TotalContactos = contactos?.Count ?? 0,
                 Contactos = contactos?.Select(u => new ContactoViewModel
                 {
@@ -75,11 +70,30 @@ public class ContactsController : Controller
             return RedirectToAction("Login", "Account");
         }
     }
+    #endregion
 
-    public async Task<IActionResult> Create()
+    [HttpPost]
+    public async Task<IActionResult> Create(CreateContactViewModel model)
     {
         try
         {
+            var UsuarioId = GetCurrentUserId();
+
+            if (UsuarioId == 0)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var usuario = new CreateContactViewModel
+            {
+                Nombre = model.Nombre,
+                PrimerApellido = model.PrimerApellido,
+                SegundoApellido = model.SegundoApellido,
+                FechaNacimiento = model.FechaNacimiento,
+                FotoArchivo = model.FotoArchivo,
+                Telefono = model.Telefono,
+            };
+
             return View("Create");
         }
         catch (Exception)
@@ -88,5 +102,32 @@ public class ContactsController : Controller
             throw;
         }
     }
-    #endregion
+
+    [HttpPut]
+    public async Task<IActionResult> Update()
+    {
+        try
+        {
+
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> Delete()
+    {
+        try
+        {
+
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    } 
 }

@@ -5,6 +5,8 @@ namespace MiAgendaEF.Models.ViewModels;
 
 public class CreateContactViewModel
 {
+    public int ContactoId { get; set; }
+
     [Required(ErrorMessage = "El Nombre es obligatorio.")]
     [Display(Name = "Nombre")]
     public string Nombre { get; set; } = null!;
@@ -25,9 +27,12 @@ public class CreateContactViewModel
     public IFormFile? FotoArchivo { get; set; }
 
     [Required(ErrorMessage = "El Teléfono es obligatorio.")]
+    [Phone(ErrorMessage = "Formato de teléfono invalido.")]
     [Display(Name = "Teléfono")]
     [DataType(DataType.PhoneNumber)]
     public string Telefono { get; set; } = null!;
+
+    public int UsuarioId { get; set; }
 
     // La lista de las redes sociales que el usuario está agregando (los datos de entrada)
     public List<RedSocialViewModel> RedesSociales { get; set; } = new List<RedSocialViewModel>();
