@@ -1,5 +1,5 @@
 ﻿@using MiAgendaEF.Models.ViewModels
-@model CreateContactViewModel
+@model CreateContactViewModel;
 @{
     Layout = null;
 }
@@ -7,9 +7,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Crear nuevo contacto</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <title>Editar Contacto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body>
@@ -26,7 +26,7 @@
                         <p class="text-muted small">Crea un nuevo perfil administrativo</p>
                     </div>
 
-                    <form asp-controller="Contacts" asp-action="Create" method="post">
+                    <form asp-controller="Contacts" asp-action="Update" method="post">
                         <div asp-validation-summary="ModelOnly" class="text-danger small mb-4 text-center"></div>
 
                         <div class="mb-4">

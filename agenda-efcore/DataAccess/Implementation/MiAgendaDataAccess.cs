@@ -122,7 +122,7 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         return await _applicationDbContext.Contactos
             .Include(U => U.Detalle)
             .Where(U => U.UsuarioId == usuarioId)
-            .OrderBy(U => U.Nombre)
+            .OrderBy(u => u.Nombre)
             .ToListAsync();
     }  
 

@@ -27,9 +27,6 @@ public class ContactsController : BaseController
     {
         try
         {
-            // Pon un breakpoint aquí y mira si "UsuarioId" está en la lista de keys.
-            var usuarioIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var nombreUsuario = User.FindFirstValue(ClaimTypes.Name);
             var usuarioId = GetCurrentUserId();
             var NombreUsuario = GetCurrentUserName();
 
@@ -53,7 +50,7 @@ public class ContactsController : BaseController
                     NombreCompleto = $"{u.Nombre} {u.PrimerApellido}",
                     Telefono = u.Telefono,
                     Edad = _miAgendaInfrastructure.CalcularEdad(u.FechaNacimiento),
-                    RedesSociales = u.Detalle?.Select(d => new RedSocialViewModel 
+                    RedesSociales = u.Detalle?.Select(d => new RedSocialViewModel
                     {
                         URL = d.URL
                     }).ToList() ?? new List<RedSocialViewModel>()
@@ -104,7 +101,7 @@ public class ContactsController : BaseController
                 PrimerApellido = model.PrimerApellido,
                 SegundoApellido = model.SegundoApellido,
                 FechaNacimiento = model.FechaNacimiento,
-                Telefono = model.Telefono,
+                //Telefono = model.Telefono,
                 UsuarioId = model.UsuarioId
             };
 
@@ -127,8 +124,9 @@ public class ContactsController : BaseController
         }
     }
 
+
     [HttpGet]
-    public async Task<IActionResult> Update(int contactoId, Contacto model)
+    public async Task<IActionResult> Update(int contactoId)
     {
         try
         {
@@ -154,10 +152,35 @@ public class ContactsController : BaseController
                 return RedirectToAction(nameof(Index));
             }
 
-            contactoExistente.Nombre = model.Nombre;
-            contactoExistente.PrimerApellido = model.PrimerApellido;
-            contactoExistente.SegundoApellido = model.SegundoApellido;
-            contactoExistente.Telefono = model.Telefono;
+            var model = new ContactoViewModel
+            {
+                ContactoId = contactoExistente.ContactoId,
+                NombreCompleto = contactoExistente.Nombre,
+                Telefono = contactoExistente.Telefono,
+                FechaNacimiento = contactoExistente.FechaNacimiento,
+                Edad = _miAgendaInfrastructure.CalcularEdad(contactoExistente.FechaNacimiento),
+                FotoRuta = contactoExistente.FotoRuta,
+                UsuarioId = contactoExistente.UsuarioId,
+                RedesSociales = contactoExistente.Detalle?.Select(d => new RedSocialViewModel
+                {
+                    TipoContactoId = d.ContactoId,
+                    URL = d.URL
+                }).ToList() ?? new List<RedSocialViewModel>()
+            };
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Update(int contactoId, Contacto model)
+    {
+        try
+        {
+     
 
             var result = await _miAgendaInfrastructure.UpdateContactAsync(model);
 
@@ -167,7 +190,7 @@ public class ContactsController : BaseController
                 return RedirectToAction(nameof(Index));
             }
 
-            ModelState.AddModelError("","No se pudo actualizar el contacto.");
+            ModelState.AddModelError("", "No se pudo actualizar el contacto.");
             return View(model);
         }
         catch (Exception ex)
@@ -178,7 +201,9 @@ public class ContactsController : BaseController
         }
     }
 
-    [HttpDelete]
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int contactoId)
     {
         try
