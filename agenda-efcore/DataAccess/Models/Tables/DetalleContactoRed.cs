@@ -8,7 +8,6 @@ public class DetalleContactoRed
     public string URL { get; set; } = null!;
     public string NombreUsuarioRed { get; set; } = null!;
     public DateTime FechaRegistro { get; set; }
-    public int UsuarioId { get; set; }
 
     public virtual Contacto Contacto { get; set; } = null!;
 }

@@ -2,7 +2,6 @@
 using DataAccess.Models.Tables;
 using Infrastructure.Contract;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Security.Cryptography;
 using System.Text;
 
