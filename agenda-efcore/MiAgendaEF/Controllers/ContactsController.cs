@@ -167,11 +167,14 @@ public class ContactsController : BaseController
                     URL = d.URL
                 }).ToList() ?? new List<RedSocialViewModel>()
             };
-        }
-        catch (Exception)
-        {
 
-            throw;
+            return View(model);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al actualizar contacto.");
+            TempData["ErrorMessage"] = "Error al actualizar el contacto.";
+            return RedirectToAction(nameof(Index));
         }
     }
 
