@@ -232,14 +232,14 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más información.
 ## Screenshots
 
 ### Página de Login
-![Login](docs/screenshots/login.png)
+![Login](agenda-efcore/docs/screenshots/login.png)
 
 ### Registo de Usuario
-![Editar](docs/screenshots/registro.png)
+![Editar](agenda-efcore/docs/screenshots/registro.png)
 
 ### Recuperación de Contraseña
-![Editar](docs/screenshots/recuperarContraseña.png)
+![Editar](agenda-efcore/docs/screenshots/recuperarContraseña.png)
 
 ### Agenda de Contactos
-![Agenda](docs/screenshots/agenda.png)
+![Agenda](agenda-efcore/docs/screenshots/agenda.png)
 
