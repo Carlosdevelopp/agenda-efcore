@@ -5,6 +5,7 @@ using MiAgendaEF.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using System.Text;
 
 namespace MiAgendaEF.Controllers;
 
@@ -12,12 +13,14 @@ namespace MiAgendaEF.Controllers;
 public class ContactsController : BaseController
 {
     private readonly IMiAgendaInfrastructure _miAgendaInfrastructure;
+    private readonly ILocalFileStorageService _FileStorage;
     private readonly ILogger<ContactsController> _logger;
 
-	public ContactsController(IMiAgendaInfrastructure miAgendaInfrastructure, ILogger<ContactsController> logger)
+	public ContactsController(IMiAgendaInfrastructure miAgendaInfrastructure, ILocalFileStorageService fileStorage, ILogger<ContactsController> logger)
 	{
 
 		_miAgendaInfrastructure = miAgendaInfrastructure;
+        _FileStorage = fileStorage;
         _logger = logger;
 	}
 
@@ -78,15 +81,15 @@ public class ContactsController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateContactViewModel model)
+    public async Task<IActionResult> Create(ContactoViewModel model)
     {
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
         try
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
             var UsuarioId = GetCurrentUserId();
 
             if (UsuarioId == 0)
@@ -95,18 +98,61 @@ public class ContactsController : BaseController
                 return RedirectToAction("Login", "Account");
             }
 
-            var contacto = new Contacto
+            if (!ModelState.IsValid)
             {
-                Nombre = model.Nombre,
-                PrimerApellido = model.PrimerApellido,
-                SegundoApellido = model.SegundoApellido,
+                return View(model);
+            }
+
+            //Guardar foto si existe
+            string? fotoRuta = null;
+            if (model.FotoRuta != null && model.FotoRuta.Length > 0)
+            {
+                fotoRuta = await _FileStorage.SaveFileAsync(model.FotoRuta, "contactos");
+            }
+
+            // Crear entidad
+            var nuevoContacto = new Contacto
+            {
+                Nombre = model.NombreCompleto,
                 FechaNacimiento = model.FechaNacimiento,
-                FotoRuta = model.FotoRuta,
                 Telefono = model.Telefono,
-                UsuarioId = model.UsuarioId
+                FotoRuta = fotoRuta, // Guardar la ruta
+                UsuarioId = model.UsuarioId,
+                FechaRegistro = DateTime.Now,
+                Detalle = new List<DetalleContactoRed>()
             };
 
-            var result = await _miAgendaInfrastructure.CreateContactAsync(contacto);
+            if (!string.IsNullOrWhiteSpace(model.Instagram))
+            {
+                nuevoContacto.Detalle.Add(new DetalleContactoRed
+                {
+                    TipoContactoId = 1,
+                    URL = NormalizarUrlRedSocial(model.Instagram, "instagram"),
+                    FechaRegistro = DateTime.Now
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Facebook))
+            {
+                nuevoContacto.Detalle.Add(new DetalleContactoRed
+                {
+                    TipoContactoId = 2,
+                    URL = NormalizarUrlRedSocial(model.Facebook, "facebook"),
+                    FechaRegistro = DateTime.Now
+                });
+            }
+
+            if (!string.IsNullOrWhiteSpace(model.Twitter))
+            {
+                nuevoContacto.Detalle.Add(new DetalleContactoRed
+                {
+                    TipoContactoId = 3,
+                    URL = NormalizarUrlRedSocial(model.Twitter, "twitter"),
+                    FechaRegistro = DateTime.Now
+                });
+            }
+
+            var result = await _miAgendaInfrastructure.CreateContactAsync(nuevoContacto);
 
             if (result != null)
             {
@@ -114,12 +160,18 @@ public class ContactsController : BaseController
                 return RedirectToAction(nameof(Index));
             }
 
-            ModelState.AddModelError("", "No se pudo crear el contacto.");
+            ModelState.AddModelError("", "No se puede crear el contacto.");
             return View(model);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al crear contacto.");
+
+            if (!string.IsNullOrEmpty(model.FotoRuta))
+            {
+                await _FileStorage.DeleteFileAsync(model.FotoRuta);
+            }
+
             TempData["ErrorMessage"] = "Error al crear el contacto.";
             return View(model);
         }
@@ -184,8 +236,6 @@ public class ContactsController : BaseController
     {
         try
         {
-     
-
             var result = await _miAgendaInfrastructure.UpdateContactAsync(model);
 
             if (result)
@@ -217,6 +267,16 @@ public class ContactsController : BaseController
             {
                 TempData["ErrorMessage"] = "Necesitas iniciar sesión.";
                 return RedirectToAction("Login", "Account");
+            }
+
+            var contacto = await _miAgendaInfrastructure.GetContactByIdAsync(contactoId);
+            if (contacto == null)
+                return NotFound();
+
+            //Eliminar foto 
+            if (!string.IsNullOrEmpty(contacto.FotoRuta))
+            {
+                await _FileStorage.DeleteFileAsync(contacto.FotoRuta);
             }
 
             var result = await _miAgendaInfrastructure.DeleteContactAsync(contactoId, usuarioId);

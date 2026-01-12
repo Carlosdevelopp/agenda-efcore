@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Infrastructure.Services;
 
-public class LocalFileStorageService : IFileStorageService
+public class LocalFileStorageService : ILocalFileStorageService
 {
     private readonly IWebHostEnvironment _environment;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -15,7 +15,7 @@ public class LocalFileStorageService : IFileStorageService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<string> SaveFileAsync(IFormFile file, string folder)
+    public async Task<string?> SaveFileAsync(IFormFile file, string folder)
     {
         if (file == null || file.Length == 0)
             return null;
@@ -31,24 +31,54 @@ public class LocalFileStorageService : IFileStorageService
         if (file.Length > 5 * 1024 * 1024)
             throw new InvalidOperationException("El archivo es demasiado grande (máximo 5MB)");
 
-        //Crear nombre único
+        // Crear nombre único
         var fileName = $"{Guid.NewGuid()}{extension}";
 
-        //Ruta en wwwwroot
+        // Ruta en wwwwroot
         var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", folder);
 
-        //Crear directorio si no existe
+        // Crear directorio si no existe
         if (!Directory.Exists(uploadsFolder))
             Directory.CreateDirectory(uploadsFolder);
 
         var filePath = Path.Combine(uploadsFolder, fileName);
 
-        //Guardar archivo
+        // Guardar archivo
         using(var stream = new FileStream(filePath, FileMode.Create))
         {
             await file.CopyToAsync(stream);
         }
 
+        // Retornar ruta relativa para guardar en BD
         return $"/uploads/{folder}/{fileName}";
+    }
+
+    public Task<bool> DeleteFileAsync(string filePath)
+    {
+        if (string.IsNullOrEmpty(filePath))
+            return Task.FromResult(false);
+
+        try
+        {
+            var fullPath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/'));
+
+            if (File.Exists(fullPath))
+                return Task.FromResult(true);
+
+            return Task.FromResult(false);
+        }
+        catch (Exception)
+        {
+            return Task.FromResult(false);
+        }
+    }
+
+    public string GetFileUrl(string filePath)
+    {
+        if (string.IsNullOrEmpty(filePath))
+            return "/images/default.png";
+
+        // Ruta relativa
+        return filePath; 
     }
 }
