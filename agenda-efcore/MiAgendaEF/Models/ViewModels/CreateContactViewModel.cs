@@ -24,7 +24,7 @@ public class CreateContactViewModel
     public DateTime FechaNacimiento { get; set; }
 
     [Display(Name = "Foto")]
-    public IFormFile? FotoArchivo { get; set; }
+    public IFormFile? FotoRuta { get; set; }
 
     [Required(ErrorMessage = "El Teléfono es obligatorio.")]
     [Phone(ErrorMessage = "Formato de teléfono invalido.")]
