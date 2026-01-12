@@ -101,7 +101,8 @@ public class ContactsController : BaseController
                 PrimerApellido = model.PrimerApellido,
                 SegundoApellido = model.SegundoApellido,
                 FechaNacimiento = model.FechaNacimiento,
-                //Telefono = model.Telefono,
+                FotoRuta = model.FotoRuta,
+                Telefono = model.Telefono,
                 UsuarioId = model.UsuarioId
             };
 

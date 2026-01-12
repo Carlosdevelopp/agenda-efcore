@@ -35,10 +35,10 @@
 
                         <!-- Campo para cargar foto -->
                         <div class="mb-3">
-                            <label for="foto" class="label-pro">
+                            <label asp-for="FotoRuta" class="label-pro">
                                 <i class="fas fa-camera me-2"></i>Foto de Perfil
                             </label>
-                            <input type="file" class="input-field-pro w-100" id="foto" name="FotoPerfil" accept="image/*" onchange="previewFoto('event')">
+                            <input type="file" class="input-field-pro w-100" id="foto" name="FotoRuta" accept="image/*">
                             <small class="text-muted" style="font-size: 0.75rem;">Formatos: JPG, PNG, GIF</small>
                         </div>
 
@@ -144,19 +144,37 @@
     </div>
 
     <script>
+         // Event listeners modernos (sin deprecated warnings)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Preview de foto
+            const fotoInput = document.getElementById('foto');
+            fotoInput.addEventListener('change', previewFoto);
+
+            // // Iconos de redes sociales
+            // document.getElementById('icon-instagram').addEventListener('click', function() {
+            //     toggleSocialInput('instagram');
+            // });
+            // document.getElementById('icon-facebook').addEventListener('click', function() {
+            //     toggleSocialInput('facebook');
+            // });
+            // document.getElementById('icon-twitter').addEventListener('click', function() {
+            //     toggleSocialInput('twitter');
+            // });
+        });
+
         // Función para previsualizar la foto
         function previewFoto(event) {
-              const file = event.target.files[0];
-              const container = document.getElementById('fotoPreviewContainer');
+               const file = event.target.files[0];
+               const container = document.getElementById('fotoPreviewContainer');
 
-              if (file) {
-                  const reader = new FileReader();
-                  reader.onload = function(e) {
-                      container.innerHTML = `<img src="${e.target.result}" class="foto-preview" alt="Vista previa">`;
-                  }
-                  reader.readAsDataURL(file);
-              }
-        }
+               if (file) {
+                   const reader = new FileReader();
+                   reader.onload = function(e) {
+                       container.innerHTML = `<img src="${e.target.result}" class="foto-preview" alt="Vista previa">`;
+                   }
+                   reader.readAsDataURL(file);
+               }
+           }
 
         // Función para mostrar/ocultar inputs de redes sociales
         function toggleSocialInput(network) {
