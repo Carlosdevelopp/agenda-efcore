@@ -1,4 +1,5 @@
 ﻿using DataAccess.Models.Tables;
+using Infrastructure.DTOs;
 
 namespace Infrastructure.Contract;
 
@@ -23,9 +24,10 @@ public interface IMiAgendaInfrastructure
 
     Task<Contacto?> GetContactByIdAsync(int contactoId);
 
-    Task<Contacto> CreateContactAsync(Contacto model);
+    Task<Contacto> CreateContactAsync(CrearContactoDto dto, int usuarioId);
 
-    Task<bool> UpdateContactAsync(Contacto model);
+    Task<Contacto> UpdateContactAsync(ActualizarContactoDto dto, int usuarioId);
+ 
 
-    Task<bool> DeleteContactAsync(int contactoId, int usuarioId);
+     Task<bool> DeleteContactAsync(int contactoId, int usuarioId);
 }

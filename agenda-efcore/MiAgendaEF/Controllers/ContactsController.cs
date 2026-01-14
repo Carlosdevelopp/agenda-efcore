@@ -84,65 +84,15 @@ public class ContactsController : BaseController
     public async Task<IActionResult> Create(ContactoViewModel model)
     {
         if (!ModelState.IsValid)
-        {
             return View(model);
-        }
 
         try
         {
             var UsuarioId = GetCurrentUserId();
-
             if (UsuarioId == 0)
             {
                 TempData["ErrorMessage"] = "Debes iniciar sesión";
                 return RedirectToAction("Login", "Account");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-        
-
-
-
-            if (!string.IsNullOrWhiteSpace(model.Instagram))
-            {
-                nuevoContacto.Detalle.Add(new DetalleContactoRed
-                {
-                    TipoContactoId = 1,
-                    URL = NormalizarUrlRedSocial(model.Instagram, "instagram"),
-                    FechaRegistro = DateTime.Now
-                });
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.Facebook))
-            {
-                nuevoContacto.Detalle.Add(new DetalleContactoRed
-                {
-                    TipoContactoId = 2,
-                    URL = NormalizarUrlRedSocial(model.Facebook, "facebook"),
-                    FechaRegistro = DateTime.Now
-                });
-            }
-
-            if (!string.IsNullOrWhiteSpace(model.Twitter))
-            {
-                nuevoContacto.Detalle.Add(new DetalleContactoRed
-                {
-                    TipoContactoId = 3,
-                    URL = NormalizarUrlRedSocial(model.Twitter, "twitter"),
-                    FechaRegistro = DateTime.Now
-                });
-            }
-
-            var result = await _miAgendaInfrastructure.CreateContactAsync(nuevoContacto);
-
-            if (result != null)
-            {
-                TempData["SuccessMessage"] = "Contacto creado exitosamente.";
-                return RedirectToAction(nameof(Index));
             }
 
             ModelState.AddModelError("", "No se puede crear el contacto.");
@@ -189,22 +139,6 @@ public class ContactsController : BaseController
                 TempData["ErrorMessage"] = "No tienes permiso para editar este contacto.";
                 return RedirectToAction(nameof(Index));
             }
-
-            var model = new ContactoViewModel
-            {
-                ContactoId = contactoExistente.ContactoId,
-                NombreCompleto = contactoExistente.Nombre,
-                Telefono = contactoExistente.Telefono,
-                FechaNacimiento = contactoExistente.FechaNacimiento,
-                Edad = _miAgendaInfrastructure.CalcularEdad(contactoExistente.FechaNacimiento),
-                FotoRuta = contactoExistente.FotoRuta,
-                UsuarioId = contactoExistente.UsuarioId,
-                RedesSociales = contactoExistente.Detalle?.Select(d => new RedSocialViewModel
-                {
-                    TipoContactoId = d.ContactoId,
-                    URL = d.URL
-                }).ToList() ?? new List<RedSocialViewModel>()
-            };
 
             return View(model);
         }
