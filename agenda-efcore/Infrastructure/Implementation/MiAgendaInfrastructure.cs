@@ -3,6 +3,7 @@ using DataAccess.Models.Tables;
 using Infrastructure.Contract;
 using Infrastructure.DTOs;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
@@ -17,15 +18,17 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     private readonly IEmailService _emailService;
     private readonly ILocalFileStorageService _localFileStorage;
     private readonly ILogger _logger;
+    private readonly IRedSocialHelper _redSocialHelper;
 
     public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess, IPasswordHasher passwordHasher, 
-                                  IEmailService emailService, ILocalFileStorageService localFileStorage, ILogger logger)
+                                  IEmailService emailService, ILocalFileStorageService localFileStorage, ILogger logger, IRedSocialHelper redSocialHelper)
     {
         _miAgendaDataAccess = miAgendaDataAccess;
         _passwordHasher = passwordHasher;
         _emailService = emailService;
         _localFileStorage = localFileStorage;
         _logger = logger;
+        _redSocialHelper = redSocialHelper;
     }
 
     #region Usuario
@@ -142,13 +145,6 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 
     public async Task<Contacto> CreateContactAsync(CrearContactoDto dto, int usuarioId)
     {
-        //Guardar foto si existe
-        string? fotoRuta = null;
-        if (dto.FotoRuta != null && dto.FotoRuta.Length > 0)
-        {
-            fotoRuta = await _localFileStorage.SaveFileAsync(dto.FotoRuta, "contactos");
-        }
-
         // Crear entidad
         var nuevoContacto = new Contacto
         {
@@ -156,26 +152,102 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
             FechaNacimiento = dto.FechaNacimiento,
             Telefono = dto.Telefono,
             FotoRuta = dto.FotoRuta, // Guardar la ruta
-            UsuarioId = UsuarioId,
+            UsuarioId = usuarioId,
             FechaRegistro = DateTime.Now,
             Detalle = new List<DetalleContactoRed>()
         };
 
-        return await _miAgendaDataAccess.CreateContactAsync(model);
+        AgregarRedesSociales(nuevoContacto, dto.Instagram, dto.Facebook, dto.Twitter);
+
+        var resultado = await _miAgendaDataAccess.CreateContactAsync(nuevoContacto);
+
+        if (resultado == null)
+        {
+            throw new InvalidOperationException("No se pudo crear el contacto en la base de datos");
+        }
+
+        _logger.LogInformation("Contacto creado: {ContactoId}", resultado.ContactoId);
+        return resultado; 
     }
 
-    public async Task<bool> UpdateContactAsync(Contacto model)
+    private void AgregarRedesSociales(Contacto contacto, string instagram, string facebook, string twitter)
     {
-        var contactoExistente = await _miAgendaDataAccess.GetContactByIdAsync(model.ContactoId);
+        if (!string.IsNullOrWhiteSpace(instagram))
+        {
+            var url = _redSocialHelper.NormalizarUrlRedSocial(instagram, "instagram");
+            if (url != null)
+            {
+                contacto.Detalle.Add(new DetalleContactoRed
+                {
+                    ContactoId = contacto.ContactoId,
+                    TipoContactoId = 1,
+                    URL = url,
+                    FechaRegistro = DateTime.Now
+                });
+            }
+        }
 
-        if (contactoExistente == null) return false;
+        if (!string.IsNullOrWhiteSpace(facebook))
+        {
+            var url = _redSocialHelper.NormalizarUrlRedSocial(facebook, "facebook");
+            if (url != null)
+            {
+                contacto.Detalle.Add(new DetalleContactoRed
+                {
+                    ContactoId = contacto.ContactoId,
+                    TipoContactoId = 2,
+                    URL = url,
+                    FechaRegistro = DateTime.Now
+                });
+            }
+        }
 
-        contactoExistente.Nombre = model.Nombre;
-        contactoExistente.PrimerApellido = model.PrimerApellido;
-        contactoExistente.SegundoApellido = model.SegundoApellido;
-        contactoExistente.Telefono = model.Telefono;
+        if (!string.IsNullOrWhiteSpace(twitter))
+        {
+            var url = _redSocialHelper.NormalizarUrlRedSocial(twitter, "twitter");
+            if (url != null)
+            {
+                contacto.Detalle.Add(new DetalleContactoRed
+                {
+                    ContactoId = contacto.ContactoId,
+                    TipoContactoId = 3,
+                    URL = url,
+                    FechaRegistro = DateTime.Now
+                });
+            }
+        }
+    }
 
-        return await _miAgendaDataAccess.UpdateContactAsync(contactoExistente);
+    public async Task<Contacto> UpdateContactAsync(ActualizarContactoDto dto, int usuarioId)
+    {
+        var contactoExistente = await _miAgendaDataAccess.GetContactByIdAsync(dto.ContactoId);
+
+        if (contactoExistente == null)
+            throw new KeyNotFoundException($"El contacto con el ID: {dto.ContactoId} no existe");
+
+        if (contactoExistente.UsuarioId != usuarioId)
+            throw new UnauthorizedAccessException("No tienes permiso para editar este contacto");
+
+        contactoExistente.Nombre = dto.NombreCompleto;
+        contactoExistente.Telefono = dto.Telefono;
+        contactoExistente.FechaNacimiento = dto.FechaNacimiento;
+
+        if (!string.IsNullOrEmpty(dto.FotoRuta))
+        {
+            contactoExistente.FotoRuta = dto.FotoRuta;
+        }
+
+        //Actualizar redes sociales
+        contactoExistente.Detalle.Clear();
+        AgregarRedesSociales(contactoExistente, dto.Instagram, dto.Facebook, dto.Twitter);
+
+        var result = await _miAgendaDataAccess.UpdateContactAsync(contactoExistente);
+
+        if (!result)
+            throw new InvalidOperationException("No se puede actualizar el contacto");
+
+        _logger.LogInformation("Contacto {ContactoId} actualizado por usuario {UsuarioId}", dto.ContactoId, usuarioId);
+        return contactoExistente;
     }
 
     public async Task<bool> DeleteContactAsync(int contactoId, int usuarioId)
@@ -184,7 +256,19 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 
         if (!esDueño) return false;
 
-        return await _miAgendaDataAccess.DeleteContactAsync(contactoId);
+        var contacto = await _miAgendaDataAccess.GetContactByIdAsync(contactoId);
+
+        if (contacto?.UsuarioId != usuarioId)
+            throw new UnauthorizedAccessException("No tienes permiso para eliminar este contacto"); 
+
+        var result = await _miAgendaDataAccess.DeleteContactAsync(contactoId);
+
+        if (result)
+        {
+            _logger.LogInformation("Contacto {ContactoId} eliminado por usuario {UsuarioId}", contactoId, usuarioId);
+        }
+
+        return result;
     }
     #endregion
 }

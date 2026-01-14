@@ -1,4 +1,5 @@
-﻿using DataAccess.Models.Tables;
+﻿using DataAccess.Implementation.Base;
+using DataAccess.Models.Tables;
 
 namespace DataAccess.Contract;
 
@@ -27,6 +28,8 @@ public interface IMiAgendaDataAccess
     Task<Contacto?> GetContactByIdAsync(int contactoId);
 
     Task<Contacto> CreateContactAsync(Contacto contacto);
+
+    Task<bool> UpdateUserAsync(Usuario model);
 
     Task<bool> UpdateContactAsync(Contacto contacto);
 
