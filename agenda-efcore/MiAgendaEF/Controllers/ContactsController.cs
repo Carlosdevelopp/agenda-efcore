@@ -103,24 +103,9 @@ public class ContactsController : BaseController
                 return View(model);
             }
 
-            //Guardar foto si existe
-            string? fotoRuta = null;
-            if (model.FotoRuta != null && model.FotoRuta.Length > 0)
-            {
-                fotoRuta = await _FileStorage.SaveFileAsync(model.FotoRuta, "contactos");
-            }
+        
 
-            // Crear entidad
-            var nuevoContacto = new Contacto
-            {
-                Nombre = model.NombreCompleto,
-                FechaNacimiento = model.FechaNacimiento,
-                Telefono = model.Telefono,
-                FotoRuta = fotoRuta, // Guardar la ruta
-                UsuarioId = model.UsuarioId,
-                FechaRegistro = DateTime.Now,
-                Detalle = new List<DetalleContactoRed>()
-            };
+
 
             if (!string.IsNullOrWhiteSpace(model.Instagram))
             {

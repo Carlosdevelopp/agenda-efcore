@@ -1,7 +1,10 @@
 ﻿using DataAccess.Contract;
 using DataAccess.Models.Tables;
 using Infrastructure.Contract;
+using Infrastructure.DTOs;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -12,15 +15,20 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     private readonly IMiAgendaDataAccess _miAgendaDataAccess;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IEmailService _emailService;
+    private readonly ILocalFileStorageService _localFileStorage;
+    private readonly ILogger _logger;
 
-    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess, IPasswordHasher passwordHasher, IEmailService emailService)
+    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess, IPasswordHasher passwordHasher, 
+                                  IEmailService emailService, ILocalFileStorageService localFileStorage, ILogger logger)
     {
         _miAgendaDataAccess = miAgendaDataAccess;
         _passwordHasher = passwordHasher;
         _emailService = emailService;
+        _localFileStorage = localFileStorage;
+        _logger = logger;
     }
 
-    #region GET
+    #region Usuario
     public async Task<Usuario?> LoginAsync(string credencial, string password)
     {
         var usuario = await _miAgendaDataAccess.GetUserByCredentialAsync(credencial);
@@ -31,13 +39,6 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         return _passwordHasher.Verify(usuario.Password, password) ? usuario : null;
     }
 
-    public async Task<List<Contacto>> GetContactsByUserIdAsync(int usuarioId)
-    {
-        return await _miAgendaDataAccess.GetContactsByUserIdAsync(usuarioId);
-    }
-    #endregion
-
-    #region POST
     public async Task<(bool Success, string Message)> RegisterUserAsync(Usuario model)
     {
         bool existe = await _miAgendaDataAccess.ExistsUserAsync(model.Correo, model.NombreUsuario);
@@ -54,9 +55,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 
         return (true, "Usuario registrado correctamente.");
     }
-    #endregion
 
-    #region UPDATE
     public async Task<(bool Success, string Message)> ResetPasswordAsync(string rawToken, string newPassword)
     {
         //Hashear token recibido
@@ -82,7 +81,6 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 
         return (true, "La contraseña fue actualizada correctamente.");
     }
-    #endregion
 
     public async Task<(bool Success, string Message)> ForgotPasswordAsync(string email)
     {
@@ -107,7 +105,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
             UsuarioId = usuario.UsuarioId,
             TokenHash = tokenHash,
             Expiration = DateTime.UtcNow.AddHours(1),
-            Used = false 
+            Used = false
         };
 
         await _miAgendaDataAccess.CreatePasswordResetTokenAsync(resetToken);
@@ -129,14 +127,40 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         if (FechaNacimiento.Date > hoy.AddYears(-edad)) edad--;
         return edad;
     }
+    #endregion
+
+    #region Contactos
+    public async Task<List<Contacto>> GetContactsByUserIdAsync(int usuarioId)
+    {
+        return await _miAgendaDataAccess.GetContactsByUserIdAsync(usuarioId);
+    }
 
     public async Task<Contacto?> GetContactByIdAsync(int contactoId)
     {
         return await _miAgendaDataAccess.GetContactByIdAsync(contactoId);
     }
 
-    public async Task<Contacto> CreateContactAsync(Contacto model)
+    public async Task<Contacto> CreateContactAsync(CrearContactoDto dto, int usuarioId)
     {
+        //Guardar foto si existe
+        string? fotoRuta = null;
+        if (dto.FotoRuta != null && dto.FotoRuta.Length > 0)
+        {
+            fotoRuta = await _localFileStorage.SaveFileAsync(dto.FotoRuta, "contactos");
+        }
+
+        // Crear entidad
+        var nuevoContacto = new Contacto
+        {
+            Nombre = dto.NombreCompleto,
+            FechaNacimiento = dto.FechaNacimiento,
+            Telefono = dto.Telefono,
+            FotoRuta = dto.FotoRuta, // Guardar la ruta
+            UsuarioId = UsuarioId,
+            FechaRegistro = DateTime.Now,
+            Detalle = new List<DetalleContactoRed>()
+        };
+
         return await _miAgendaDataAccess.CreateContactAsync(model);
     }
 
@@ -161,5 +185,6 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         if (!esDueño) return false;
 
         return await _miAgendaDataAccess.DeleteContactAsync(contactoId);
-    }  
+    }
+    #endregion
 }
