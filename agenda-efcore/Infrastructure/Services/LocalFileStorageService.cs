@@ -1,18 +1,19 @@
 ﻿using Infrastructure.Contract;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services;
 
 public class LocalFileStorageService : ILocalFileStorageService
 {
     private readonly IWebHostEnvironment _environment;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger _logger;
 
-    public LocalFileStorageService(IWebHostEnvironment environment,  IHttpContextAccessor httpContextAccessor)
+    public LocalFileStorageService(IWebHostEnvironment environment, ILogger logger)
     {
         _environment = environment;
-        _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
     }
 
     public async Task<string?> SaveFileAsync(IFormFile file, string folder)
@@ -49,6 +50,8 @@ public class LocalFileStorageService : ILocalFileStorageService
             await file.CopyToAsync(stream);
         }
 
+        _logger.LogInformation($"Archivo guardado: {filePath}", filePath);
+
         // Retornar ruta relativa para guardar en BD
         return $"/uploads/{folder}/{fileName}";
     }
@@ -67,18 +70,15 @@ public class LocalFileStorageService : ILocalFileStorageService
 
             return Task.FromResult(false);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Error al eliminar archivo: {Filepath}", filePath);
             return Task.FromResult(false);
         }
     }
 
     public string GetFileUrl(string filePath)
     {
-        if (string.IsNullOrEmpty(filePath))
-            return "/images/default.png";
-
-        // Ruta relativa
-        return filePath; 
+        return string.IsNullOrEmpty(filePath) ? "/images/default.png" : filePath;
     }
 }

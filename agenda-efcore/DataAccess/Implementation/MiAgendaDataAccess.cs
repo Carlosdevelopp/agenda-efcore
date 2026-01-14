@@ -14,6 +14,7 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         _applicationDbContext = applicationDbContext;
     }
 
+    #region Usuarios
     public async Task<Usuario?> GetUserByCredentialAsync(string credencial)
     {
         return await _applicationDbContext.Usuarios.FirstOrDefaultAsync(u => u.Correo == credencial || u.NombreUsuario == credencial);
@@ -57,6 +58,12 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         _applicationDbContext.Entry(usuario).Property(u => u.RutaFoto).IsModified = true;
 
         await _applicationDbContext.SaveChangesAsync(); 
+    }
+
+    public async Task<bool> UpdateUserAsync(Usuario model)
+    {
+        _applicationDbContext.Update(model);
+        return await _applicationDbContext.SaveChangesAsync() > 0;
     }
 
     public async Task UpdateStateAsync(int usuarioId, bool estado)
@@ -116,7 +123,9 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
 
         await _applicationDbContext.SaveChangesAsync();
     }
+    #endregion
 
+    #region Contactos
     public async Task<List<Contacto>> GetContactsByUserIdAsync(int usuarioId)
     {
         return await _applicationDbContext.Contactos
@@ -130,6 +139,7 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
     {
         return await _applicationDbContext.Contactos
             .Include(U => U.Detalle)
+            .ThenInclude(d => d.URL)
             .FirstOrDefaultAsync(U => U.ContactoId == contactoId);
     }
 
@@ -143,8 +153,7 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
     public async Task<bool> UpdateContactAsync(Contacto contacto)
     {
         _applicationDbContext.Contactos.Update(contacto);
-        var result = await _applicationDbContext.SaveChangesAsync();
-        return result > 0;
+        return await _applicationDbContext.SaveChangesAsync() > 0;
     }
 
     public async Task<bool> DeleteContactAsync(int contactoId)
@@ -153,8 +162,7 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         if (contacto == null) return false;
 
         _applicationDbContext.Contactos.Remove(contacto);
-        var result = await _applicationDbContext.SaveChangesAsync();
-        return result > 0;
+        return await _applicationDbContext.SaveChangesAsync() > 0 ;
     }
 
     public async Task<bool> ContactExistsAsync(int contactoId)
@@ -166,4 +174,5 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
     {
         return await _applicationDbContext.Contactos.AnyAsync(c => c.ContactoId == contactoId && c.UsuarioId == usuarioId);
     }
+    #endregion
 }
