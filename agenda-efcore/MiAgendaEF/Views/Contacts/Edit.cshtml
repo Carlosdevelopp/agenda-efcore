@@ -1,5 +1,5 @@
 ﻿@using MiAgendaEF.Models.ViewModels
-@model CreateContactViewModel;
+@model ContactoViewModel;
 @{
     Layout = null;
 }
@@ -26,38 +26,58 @@
                         <p class="text-muted small">Crea un nuevo perfil administrativo</p>
                     </div>
 
-                    <form asp-controller="Contacts" asp-action="Update" method="post">
+                    <form asp-controller="Contacts" asp-action="Update" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="ContactoId"/>
+                        <input type="hidden" asp-for="UsuarioId"/>
+                        <input type="hidden" asp-for="FotoRuta" />
+
                         <div asp-validation-summary="ModelOnly" class="text-danger small mb-4 text-center"></div>
 
-                        <div class="mb-4">
-                            <label asp-for="Nombre" class="label-pro">Nombre Completo</label>
-                            <input asp-for="Nombre" class="input-field-pro w-100" placeholder="Escribe tu nombre">
-                            <span asp-validation-for="Nombre" class="text-danger small"></span>
+                        @if (!string.IsNullOrEmpty(Model.FotoRuta))
+                        {
+                            <div class="text-center mb-3">
+                                <img src="@Model.FotoRuta" alt="Foto actual" class="foto-preview"
+                                style="width: 150px; height: 150px; border-radius: 50%; -o-object-fit: cover;"/>
+                                <p class="text-muted smalll">Foto actual</p>
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label asp-for="FotoPerfil" class="form-label">Cambiar Foto(opcional)</label>
+                            <input asp-for="FotoPerfil" type="file" class="form-control" accept="image/*" id="foto"/>
+                            <span asp-validation-for="FotoPerfil" class="text-danger"></span>
                         </div>
 
-                        <div class="row g-3 mb-4">
-                            <div class="col-6">
-                                <label asp-for="PrimerApellido" class="label-pro">1er Apellido</label>
-                                <input asp-for="PrimerApellido" class="input-field-pro w-100" placeholder="Paterno">
-                                <span asp-validation-for="PrimerApellido" class="text-danger small"></span>
-                            </div>
-                            <div class="col-6">
-                                <label asp-for="SegundoApellido" class="label-pro">2do Apellido</label>
-                                <input asp-for="SegundoApellido" class="input-field-pro w-100" placeholder="Materno">
-                                <span asp-validation-for="SegundoApellido" class="text-danger small"></span>
-                            </div>
+                        <div class="mb-3">
+                            <label asp-for="NombreCompleto" class="label-pro">Nombre Completo</label>
+                            <input asp-for="NombreCompleto" class="input-field-pro w-100" placeholder="Escribe tu nombre">
+                            <span asp-validation-for="NombreCompleto" class="text-danger small"></span>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label asp-for="FechaNacimiento" class="label-pro">Fecha de Nacimiento</label>
                             <input asp-for="FechaNacimiento" type="date" class="input-field-pro w-100" style="color-scheme: dark;">
                             <span asp-validation-for="FechaNacimiento" class="text-danger small"></span>
                         </div>
 
+                        <div class="mb-3">
+                            <label asp-for="Instagram" class="form-label">Instagram</label>
+                            <input asp-for="Instagram" class="form-control" placeholder="URL"/>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Facebook" class="form-label">Facebook</label>
+                            <input asp-for="Facebook" class="form-control" placeholder="URL" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Twitter" class="form-label">Twitter</label>
+                            <input asp-for="Twitter" class="form-control" placeholder="URL" />
+                        </div>
+
                         <div class="d-grid mt-5">
-                            <button type="submit" class="btn-search-neon py-3 fw-bold">
-                                CONFIRMAR REGISTRO
-                            </button>
+                            <button type="submit" class="btn-search-neon py-3 fw-bold">CONFIRMAR REGISTRO</button>
+                            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
                         </div>
 
                         <div class="text-center mt-4">
@@ -66,6 +86,12 @@
                             </a>
                         </div>
                     </form>
+
+                    @section Scripts {
+                        @{
+                            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+                        }
+                    }
                 </div>
             </div>
         </div>

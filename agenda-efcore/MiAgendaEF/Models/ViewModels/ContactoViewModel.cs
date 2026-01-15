@@ -13,6 +13,7 @@ public class ContactoViewModel
 
     [Required(ErrorMessage = "La fecha de nacimiento es requerida")]
     [Display(Name = "Fecha de Nacimiento")]
+    [DataType(DataType.Date)]
     public DateTime FechaNacimiento { get; set; }
 
     [Required(ErrorMessage = "El teléfono es requerido")]
@@ -21,16 +22,16 @@ public class ContactoViewModel
 
     public int? Edad { get; set; }
 
-    public string? FotoRuta { get; set; }
+    public string FotoRuta { get; set; }
 
     [Display(Name="Foto de perfil")]
     public  IFormFile? FotoPerfil { get; set; }
 
     public int UsuarioId { get; set; }
 
-    public string? Instagram { get; set; }
-    public string? Facebook { get; set; }
-    public string? Twitter { get; set; }
+    public string Instagram { get; set; }
+    public string Facebook { get; set; }
+    public string Twitter { get; set; }
 
     //public int UsuarioId { get; set; }
     public List<RedSocialViewModel> RedesSociales { get; set; } = new List<RedSocialViewModel>();

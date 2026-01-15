@@ -1,12 +1,9 @@
 ﻿using Agenda.EFCore.Controllers;
-using DataAccess.Models.Tables;
 using Infrastructure.Contract;
+using Infrastructure.DTOs;
 using MiAgendaEF.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using System.Text;
-
 namespace MiAgendaEF.Controllers;
 
 [Authorize]
@@ -88,25 +85,44 @@ public class ContactsController : BaseController
 
         try
         {
-            var UsuarioId = GetCurrentUserId();
-            if (UsuarioId == 0)
+            var usuarioId = GetCurrentUserId();
+            if (usuarioId == 0)
             {
                 TempData["ErrorMessage"] = "Debes iniciar sesión";
                 return RedirectToAction("Login", "Account");
             }
 
-            ModelState.AddModelError("", "No se puede crear el contacto.");
+            string? fotoRuta = null; 
+            if (model.FotoPerfil != null && model.FotoPerfil.Length > 0)
+            {
+                fotoRuta = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
+            }
+
+            var dto = new CrearContactoDto
+            {
+                NombreCompleto = model.NombreCompleto,
+                Telefono = model.Telefono,
+                FechaNacimiento = model.FechaNacimiento,
+                FotoRuta = fotoRuta,
+                Instagram = model.Instagram,
+                Facebook = model.Facebook,
+                Twitter = model.Twitter
+            };
+
+            var contacto = await _miAgendaInfrastructure.CreateContactAsync(dto, usuarioId);
+
+            TempData["SuccessMessage"] = "Contacto creado exitosamente.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogError(ex, "Error de validación  al crear contacto.");
+            ModelState.AddModelError("", ex.Message);
             return View(model);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al crear contacto.");
-
-            if (!string.IsNullOrEmpty(model.FotoRuta))
-            {
-                await _FileStorage.DeleteFileAsync(model.FotoRuta);
-            }
-
             TempData["ErrorMessage"] = "Error al crear el contacto.";
             return View(model);
         }
@@ -140,36 +156,101 @@ public class ContactsController : BaseController
                 return RedirectToAction(nameof(Index));
             }
 
+            var model = new ContactoViewModel
+            {
+                ContactoId = contactoExistente.ContactoId,
+                NombreCompleto = contactoExistente.Nombre,
+                Telefono = contactoExistente.Telefono,
+                FechaNacimiento = contactoExistente.FechaNacimiento,
+                Edad = _miAgendaInfrastructure.CalcularEdad(contactoExistente.FechaNacimiento),
+                FotoRuta = contactoExistente.FotoRuta,
+                UsuarioId = contactoExistente.UsuarioId,
+
+                Instagram = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 1)?.URL,
+                Facebook = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 2)?.URL,
+                Twitter = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 3)?.URL
+            };
+
             return View(model);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al actualizar contacto.");
-            TempData["ErrorMessage"] = "Error al actualizar el contacto.";
+            _logger.LogError(ex, "Error al cargar contacto para editar.");
+            TempData["ErrorMessage"] = "Error al cargar el contacto.";
             return RedirectToAction(nameof(Index));
         }
     }
 
     [HttpPost]
-    public async Task<IActionResult> Update(int contactoId, Contacto model)
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Update(int contactoId, ContactoViewModel model)
     {
+        if (contactoId != model.ContactoId)
+            return NotFound();
+
+        if (!ModelState.IsValid)
+            return View(model);
+
         try
         {
-            var result = await _miAgendaInfrastructure.UpdateContactAsync(model);
-
-            if (result)
+            var  usuarioId = GetCurrentUserId();
+            if (usuarioId == 0)
             {
-                TempData["SuccessMessage"] = "Contacto actualizado correctamente.";
-                return RedirectToAction(nameof(Index));
+                TempData["ErrorMeessage"] = "Debes iniciar sesión";
+                return RedirectToAction("Login", "Account");
             }
 
-            ModelState.AddModelError("", "No se pudo actualizar el contacto.");
+            string nuevaFotoRuta = model.FotoRuta;
+
+            if (model.FotoPerfil != null && model.FotoPerfil.Length > 0 )
+            {
+                if (!string.IsNullOrEmpty(model.FotoRuta))
+                {
+                    await _FileStorage.DeleteFileAsync(model.FotoRuta);
+                }
+
+                nuevaFotoRuta = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
+            }
+
+            var dto  = new ActualizarContactoDto
+            {
+                ContactoId = model.ContactoId,
+                NombreCompleto = model.NombreCompleto,
+                Telefono = model.Telefono,
+                FechaNacimiento = model.FechaNacimiento,
+                FotoRuta = nuevaFotoRuta,
+                Instagram = model.Instagram,
+                Facebook = model.Facebook,
+                Twitter = model.Twitter
+            };
+
+            var updateResult = await _miAgendaInfrastructure.UpdateContactAsync(dto, usuarioId);
+
+            TempData["SuccessMessage"] = "Contacto actualizado exitosamente.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            _logger.LogWarning(ex, "Contacto {ContactoId} no encontrado", contactoId);
+            TempData["ErrorMessage"] = "El contacto no existe.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Usuario sin permisos para editar contacto {ContactoId}", contactoId);
+            TempData["ErrorMessage"] = "No tienes permiso para editar este contacto.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Error de validación al actualizar contacto");
+            ModelState.AddModelError("", ex.Message);
             return View(model);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al actualizar el contacto.");
-            TempData["ErrorMessage"] = "Error al actualizar el contacto.";
+            _logger.LogError(ex, "Error inesperado al actualizar contacto {ContactoId}", contactoId);
+            TempData["ErrorMessage"] = "Ocurrió un error inesperado al actualizar el contacto.";
             return View(model);
         }
     }
@@ -189,32 +270,33 @@ public class ContactsController : BaseController
             }
 
             var contacto = await _miAgendaInfrastructure.GetContactByIdAsync(contactoId);
-            if (contacto == null)
-                return NotFound();
-
-            //Eliminar foto 
-            if (!string.IsNullOrEmpty(contacto.FotoRuta))
+            if (contacto == null && contacto.UsuarioId == usuarioId)
             {
-                await _FileStorage.DeleteFileAsync(contacto.FotoRuta);
+                if (!string.IsNullOrEmpty(contacto.FotoRuta))
+                {
+                    await _FileStorage.DeleteFileAsync(contacto.FotoRuta);
+                }
+
+                var result = await _miAgendaInfrastructure.DeleteContactAsync(contactoId, usuarioId);
+
+                TempData[result ? "SuccessMessage" : "ErrorMessage"] = result
+                    ? "Contacto eliminado exitosamente."
+                    : "No tienes permiso para eliminar este contacto.";
             }
 
-            var result = await _miAgendaInfrastructure.DeleteContactAsync(contactoId, usuarioId);
-
-            if (result)
-            {
-                TempData["SuccessMessage"] = "Contacto eliminado exitosamente.";
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "No tienes permiso para eliminar este contacto.";
-            }
-
+            TempData["ErrorMessage"] = "Contacto no encontrado o no tienes permiso para eliminarlo.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Sin permisos para eliminnar.");
+            TempData["ErrorMessage"] = "No tienes permisos para eliminar este contacto.";
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ërror al eliminar contacto.");
-            TempData["ErrorMessage"] = "Error al eliminar el contacto.";
+            _logger.LogError(ex, "Error al aliminar");
+            TempData["ErrorMessage"] = "Error al eliminar contacto.";
             return RedirectToAction(nameof(Index));
         }
     } 
