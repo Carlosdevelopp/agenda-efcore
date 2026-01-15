@@ -2,8 +2,6 @@
 using DataAccess.Models.Tables;
 using Infrastructure.Contract;
 using Infrastructure.DTOs;
-using Microsoft.AspNetCore.Components.Forms;
-using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
@@ -16,17 +14,14 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     private readonly IMiAgendaDataAccess _miAgendaDataAccess;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IEmailService _emailService;
-    private readonly ILocalFileStorageService _localFileStorage;
     private readonly ILogger _logger;
     private readonly IRedSocialHelper _redSocialHelper;
 
-    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess, IPasswordHasher passwordHasher, 
-                                  IEmailService emailService, ILocalFileStorageService localFileStorage, ILogger logger, IRedSocialHelper redSocialHelper)
+    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess,IPasswordHasher passwordHasher,IEmailService emailService,ILogger logger, IRedSocialHelper redSocialHelper)
     {
         _miAgendaDataAccess = miAgendaDataAccess;
         _passwordHasher = passwordHasher;
         _emailService = emailService;
-        _localFileStorage = localFileStorage;
         _logger = logger;
         _redSocialHelper = redSocialHelper;
     }
@@ -151,7 +146,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
             Nombre = dto.NombreCompleto,
             FechaNacimiento = dto.FechaNacimiento,
             Telefono = dto.Telefono,
-            FotoRuta = dto.FotoRuta, // Guardar la ruta
+            FotoRuta = dto.FotoRuta, 
             UsuarioId = usuarioId,
             FechaRegistro = DateTime.Now,
             Detalle = new List<DetalleContactoRed>()
