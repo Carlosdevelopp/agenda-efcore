@@ -34,6 +34,10 @@ public class CreateContactViewModel
 
     public int UsuarioId { get; set; }
 
+    public string? Instagram { get; set; }
+    public string? Facebook { get; set; }
+    public string? Twitter { get; set; }
+
     // La lista de las redes sociales que el usuario está agregando (los datos de entrada)
     public List<RedSocialViewModel> RedesSociales { get; set; } = new List<RedSocialViewModel>();
 
