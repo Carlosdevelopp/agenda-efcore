@@ -2,6 +2,7 @@ using DataAccess.Contract;
 using DataAccess.Implementation;
 using DataAccess.Implementation.Base;
 using Infrastructure.Contract;
+using Infrastructure.Helpers;
 using Infrastructure.Implementation;
 using Infrastructure.Implementation.Security;
 using Infrastructure.Services;
@@ -16,9 +17,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 
 builder.Services.AddScoped<IMiAgendaInfrastructure, MiAgendaInfrastructure>();
 builder.Services.AddScoped<IMiAgendaDataAccess, MiAgendaDataAccess>();
-
+builder.Services.AddScoped<ILocalFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IRedSocialHelper, RedSocialHelper>();
 
 //Agregar autenticación con cookies
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
@@ -37,7 +39,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization();
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ILocalFileStorageService, LocalFileStorageService>();
 //builder.Services.AddDistributedMemoryCache();
 
 //Loggings

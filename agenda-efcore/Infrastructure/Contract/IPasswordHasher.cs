@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-namespace Infrastructure.Contract;
+﻿namespace Infrastructure.Contract;
 
 public interface IPasswordHasher
 {

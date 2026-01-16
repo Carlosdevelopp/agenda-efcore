@@ -62,7 +62,6 @@ public class ContactsController : BaseController
         catch (Exception ex)
         {
             // Si algo falla, redirigimos a una página de error o al Login con un mensaje
-
             _logger.LogError(ex, "Error al cargar agenda del usuario.");
             TempData["ErrorMessage"] = "No se pudieron cargar tus contactos. Por favor, reintenta.";
             return RedirectToAction("Login", "Account");
@@ -78,7 +77,7 @@ public class ContactsController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ContactoViewModel model)
+    public async Task<IActionResult> Create(CreateContactViewModel model)
     {
         if (!ModelState.IsValid)
             return View(model);
@@ -93,14 +92,16 @@ public class ContactsController : BaseController
             }
 
             string? fotoRuta = null; 
-            if (model.FotoPerfil != null && model.FotoPerfil.Length > 0)
+            if (model.FotoRuta != null && model.FotoRuta.Length > 0)
             {
-                fotoRuta = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
+                fotoRuta = await _FileStorage.SaveFileAsync(model.FotoRuta, "contactos");
             }
 
             var dto = new CrearContactoDto
             {
-                NombreCompleto = model.NombreCompleto,
+                Nombre = model.Nombre,
+                PrimerApellido = model.PrimerApellido,
+                SegundoApellido = model.SegundoApellido,
                 Telefono = model.Telefono,
                 FechaNacimiento = model.FechaNacimiento,
                 FotoRuta = fotoRuta,
@@ -200,7 +201,7 @@ public class ContactsController : BaseController
                 return RedirectToAction("Login", "Account");
             }
 
-            string nuevaFotoRuta = model.FotoRuta;
+            string? nuevaFotoRuta = model.FotoRuta;
 
             if (model.FotoPerfil != null && model.FotoPerfil.Length > 0 )
             {
@@ -270,7 +271,7 @@ public class ContactsController : BaseController
             }
 
             var contacto = await _miAgendaInfrastructure.GetContactByIdAsync(contactoId);
-            if (contacto == null && contacto.UsuarioId == usuarioId)
+            if (contacto != null && contacto.UsuarioId == usuarioId)
             {
                 if (!string.IsNullOrEmpty(contacto.FotoRuta))
                 {

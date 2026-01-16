@@ -1,19 +1,16 @@
 ﻿using Infrastructure.Contract;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services;
 
 public class LocalFileStorageService : ILocalFileStorageService
 {
     private readonly IWebHostEnvironment _environment;
-    private readonly ILogger _logger;
 
-    public LocalFileStorageService(IWebHostEnvironment environment, ILogger logger)
+    public LocalFileStorageService(IWebHostEnvironment environment)
     {
         _environment = environment;
-        _logger = logger;
     }
 
     public async Task<string?> SaveFileAsync(IFormFile file, string folder)
@@ -50,8 +47,6 @@ public class LocalFileStorageService : ILocalFileStorageService
             await file.CopyToAsync(stream);
         }
 
-        _logger.LogInformation($"Archivo guardado: {filePath}", filePath);
-
         // Retornar ruta relativa para guardar en BD
         return $"/uploads/{folder}/{fileName}";
     }
@@ -60,21 +55,13 @@ public class LocalFileStorageService : ILocalFileStorageService
     {
         if (string.IsNullOrEmpty(filePath))
             return Task.FromResult(false);
-
-        try
-        {
+ 
             var fullPath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/'));
 
             if (File.Exists(fullPath))
                 return Task.FromResult(true);
 
             return Task.FromResult(false);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error al eliminar archivo: {Filepath}", filePath);
-            return Task.FromResult(false);
-        }
     }
 
     public string GetFileUrl(string filePath)

@@ -14,10 +14,10 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     private readonly IMiAgendaDataAccess _miAgendaDataAccess;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IEmailService _emailService;
-    private readonly ILogger _logger;
+    private readonly ILogger<MiAgendaInfrastructure> _logger;
     private readonly IRedSocialHelper _redSocialHelper;
 
-    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess,IPasswordHasher passwordHasher,IEmailService emailService,ILogger logger, IRedSocialHelper redSocialHelper)
+    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess,IPasswordHasher passwordHasher,IEmailService emailService,ILogger<MiAgendaInfrastructure> logger, IRedSocialHelper redSocialHelper)
     {
         _miAgendaDataAccess = miAgendaDataAccess;
         _passwordHasher = passwordHasher;
@@ -143,7 +143,9 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         // Crear entidad
         var nuevoContacto = new Contacto
         {
-            Nombre = dto.NombreCompleto,
+            Nombre = dto.Nombre,
+            PrimerApellido = dto.PrimerApellido,
+            SegundoApellido = dto.SegundoApellido,
             FechaNacimiento = dto.FechaNacimiento,
             Telefono = dto.Telefono,
             FotoRuta = dto.FotoRuta, 

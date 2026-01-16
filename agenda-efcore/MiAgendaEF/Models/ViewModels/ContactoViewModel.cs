@@ -22,16 +22,16 @@ public class ContactoViewModel
 
     public int? Edad { get; set; }
 
-    public string FotoRuta { get; set; }
+    public string? FotoRuta { get; set; } = string.Empty;
 
     [Display(Name="Foto de perfil")]
     public  IFormFile? FotoPerfil { get; set; }
 
     public int UsuarioId { get; set; }
 
-    public string Instagram { get; set; }
-    public string Facebook { get; set; }
-    public string Twitter { get; set; }
+    public string? Instagram { get; set; } 
+    public string? Facebook { get; set; } 
+    public string? Twitter { get; set; } 
 
     //public int UsuarioId { get; set; }
     public List<RedSocialViewModel> RedesSociales { get; set; } = new List<RedSocialViewModel>();
