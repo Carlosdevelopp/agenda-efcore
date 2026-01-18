@@ -176,7 +176,6 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
             {
                 contacto.Detalle.Add(new DetalleContactoRed
                 {
-                    ContactoId = contacto.ContactoId,
                     TipoContactoId = 1,
                     URL = url,
                     FechaRegistro = DateTime.Now
@@ -191,7 +190,6 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
             {
                 contacto.Detalle.Add(new DetalleContactoRed
                 {
-                    ContactoId = contacto.ContactoId,
                     TipoContactoId = 2,
                     URL = url,
                     FechaRegistro = DateTime.Now
@@ -206,7 +204,6 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
             {
                 contacto.Detalle.Add(new DetalleContactoRed
                 {
-                    ContactoId = contacto.ContactoId,
                     TipoContactoId = 3,
                     URL = url,
                     FechaRegistro = DateTime.Now

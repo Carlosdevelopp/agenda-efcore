@@ -37,13 +37,4 @@ public class CreateContactViewModel
     public string? Instagram { get; set; }
     public string? Facebook { get; set; }
     public string? Twitter { get; set; }
-
-    // La lista de las redes sociales que el usuario está agregando (los datos de entrada)
-    public List<RedSocialViewModel> RedesSociales { get; set; } = new List<RedSocialViewModel>();
-
-    // La lista de OPCIONES para el Dropdown (Se llena en el Controlador)
-    public IEnumerable<SelectListItem> RedesDisponibles { get; set; } = new List<SelectListItem>();
-
-    // Campo necesario para vincular el contacto con el usuario logueado
-    public int UsuarioPropietarioId { get; set; }
 }
