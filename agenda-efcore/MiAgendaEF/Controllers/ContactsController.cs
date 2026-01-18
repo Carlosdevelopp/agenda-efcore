@@ -40,24 +40,29 @@ public class ContactsController : BaseController
             var contactos = await _miAgendaInfrastructure.GetContactsByUserIdAsync(usuarioId);
 
             //Crea ViewModel
-            var agendaViewModel = new AgendaViewModel
+            var contactosViewModel = contactos.Select(u => new ContactoViewModel
             {
-                Titulo = $"Agenda de {NombreUsuario}",
-                TotalContactos = contactos?.Count ?? 0,
-                Contactos = contactos?.Select(u => new ContactoViewModel
+                ContactoId = u.ContactoId,
+                NombreCompleto = u.Nombre,
+                Telefono = u.Telefono,
+                Edad = _miAgendaInfrastructure.CalcularEdad(u.FechaNacimiento),
+                FotoRuta = u.FotoRuta,
+
+                RedesSociales = u.Detalle?.Select(d => new RedSocialViewModel
                 {
-                    ContactoId = u.ContactoId,
-                    NombreCompleto = $"{u.Nombre} {u.PrimerApellido}",
-                    Telefono = u.Telefono,
-                    Edad = _miAgendaInfrastructure.CalcularEdad(u.FechaNacimiento),
-                    RedesSociales = u.Detalle?.Select(d => new RedSocialViewModel
-                    {
-                        URL = d.URL
-                    }).ToList() ?? new List<RedSocialViewModel>()
-                }).ToList() ?? new List<ContactoViewModel>()
+                    TipoContactoId = d.TipoContactoId,
+                    URL = d.URL
+                }).ToList() ?? new List<RedSocialViewModel>()
+
+            }).ToList();
+
+            var model = new AgendaViewModel
+            {
+                Contactos = contactosViewModel,
+                TotalContactos = contactosViewModel.Count
             };
 
-            return View("Agenda", agendaViewModel);
+            return View("Agenda",model); 
         }
         catch (Exception ex)
         {
