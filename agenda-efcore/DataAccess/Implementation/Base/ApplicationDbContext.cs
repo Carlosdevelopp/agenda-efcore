@@ -26,12 +26,33 @@ public class ApplicationDbContext : DbContext
         {
             entity.ToTable("Contactos");
             entity.HasKey(e => e.ContactoId);
+
+            entity.Property(c => c.ContactoId)
+              .ValueGeneratedOnAdd(); // Esto es crucial
+
+            entity.Property(c => c.Nombre)
+                  .IsRequired()
+                  .HasMaxLength(100);
+
+            entity.Property(c => c.Telefono)
+                  .IsRequired()
+                  .HasMaxLength(20);
         });
 
         modelBuilder.Entity<DetalleContactoRed>(entity =>
         {
             entity.ToTable("DetallesContactosRedes");
-            entity.HasKey(u => u.DetContactoRedId);
+
+            entity.HasKey(d => d.DetContactoRedId);
+
+            // IMPORTANTE: También IDENTITY
+            entity.Property(d => d.DetContactoRedId)
+                  .ValueGeneratedOnAdd();
+
+            entity.HasOne(d => d.Contacto)
+                  .WithMany(c => c.Detalle)
+                  .HasForeignKey(d => d.ContactoId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<PasswordResetToken>(entity =>

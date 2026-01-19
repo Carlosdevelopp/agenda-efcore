@@ -156,6 +156,18 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 
         AgregarRedesSociales(nuevoContacto, dto.Instagram, dto.Facebook, dto.Twitter);
 
+        if (nuevoContacto.Detalle.Any())
+        {
+            foreach (var d in nuevoContacto.Detalle)
+            {
+                Console.WriteLine($"  Red: TipoContactoId={d.TipoContactoId}, URL={d.URL}, ContactoId={d.ContactoId}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("NO SE AGREGARON REDES SOCIALES");
+        }
+
         var resultado = await _miAgendaDataAccess.CreateContactAsync(nuevoContacto);
 
         if (resultado == null)
@@ -178,6 +190,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
                 {
                     TipoContactoId = 1,
                     URL = url,
+                    NombreUsuarioRed = _redSocialHelper.ExtraerUserName(url)!,
                     FechaRegistro = DateTime.Now
                 });
             }
@@ -192,6 +205,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
                 {
                     TipoContactoId = 2,
                     URL = url,
+                    NombreUsuarioRed =  _redSocialHelper.ExtraerUserName(url)!, 
                     FechaRegistro = DateTime.Now
                 });
             }
@@ -206,6 +220,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
                 {
                     TipoContactoId = 3,
                     URL = url,
+                    NombreUsuarioRed = _redSocialHelper.ExtraerUserName(url)!,
                     FechaRegistro = DateTime.Now
                 });
             }
@@ -222,7 +237,9 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         if (contactoExistente.UsuarioId != usuarioId)
             throw new UnauthorizedAccessException("No tienes permiso para editar este contacto");
 
-        contactoExistente.Nombre = dto.NombreCompleto;
+        contactoExistente.Nombre = dto.Nombre;
+        contactoExistente.PrimerApellido = dto.PrimerApellido;
+        contactoExistente.SegundoApellido = dto.SegundoApellido;
         contactoExistente.Telefono = dto.Telefono;
         contactoExistente.FechaNacimiento = dto.FechaNacimiento;
 

@@ -43,7 +43,9 @@ public class ContactsController : BaseController
             var contactosViewModel = contactos.Select(u => new ContactoViewModel
             {
                 ContactoId = u.ContactoId,
-                NombreCompleto = u.Nombre,
+                Nombre = u.Nombre,
+                PrimerApellido = u.PrimerApellido,
+                SegundoApellido = u.SegundoApellido,
                 Telefono = u.Telefono,
                 Edad = _miAgendaInfrastructure.CalcularEdad(u.FechaNacimiento),
                 FotoRuta = u.FotoRuta,
@@ -134,7 +136,6 @@ public class ContactsController : BaseController
         }
     }
 
-
     [HttpGet]
     public async Task<IActionResult> Update(int contactoId)
     {
@@ -165,7 +166,9 @@ public class ContactsController : BaseController
             var model = new ContactoViewModel
             {
                 ContactoId = contactoExistente.ContactoId,
-                NombreCompleto = contactoExistente.Nombre,
+                Nombre = contactoExistente.Nombre,
+                PrimerApellido = contactoExistente.PrimerApellido,
+                SegundoApellido = contactoExistente.SegundoApellido,
                 Telefono = contactoExistente.Telefono,
                 FechaNacimiento = contactoExistente.FechaNacimiento,
                 Edad = _miAgendaInfrastructure.CalcularEdad(contactoExistente.FechaNacimiento),
@@ -221,7 +224,9 @@ public class ContactsController : BaseController
             var dto  = new ActualizarContactoDto
             {
                 ContactoId = model.ContactoId,
-                NombreCompleto = model.NombreCompleto,
+                Nombre = model.Nombre,
+                PrimerApellido = model.PrimerApellido,
+                SegundoApellido = model.SegundoApellido,
                 Telefono = model.Telefono,
                 FechaNacimiento = model.FechaNacimiento,
                 FotoRuta = nuevaFotoRuta,
@@ -261,7 +266,6 @@ public class ContactsController : BaseController
         }
     }
 
-
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int contactoId)
@@ -276,6 +280,7 @@ public class ContactsController : BaseController
             }
 
             var contacto = await _miAgendaInfrastructure.GetContactByIdAsync(contactoId);
+
             if (contacto != null && contacto.UsuarioId == usuarioId)
             {
                 if (!string.IsNullOrEmpty(contacto.FotoRuta))

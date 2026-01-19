@@ -3,7 +3,9 @@
 public class ActualizarContactoDto
 {
     public int ContactoId { get; set; }
-    public string NombreCompleto { get; set; } = string.Empty;
+    public string Nombre { get; set; } = string.Empty;
+    public string PrimerApellido { get; set; } = string.Empty;
+    public string SegundoApellido { get; set; } = string.Empty;
     public string Telefono { get; set; } = string.Empty;
     public DateTime FechaNacimiento { get; set; }
     public string? FotoRuta { get; set; } = string.Empty;

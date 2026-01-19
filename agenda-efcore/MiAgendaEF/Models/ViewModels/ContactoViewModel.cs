@@ -9,7 +9,14 @@ public class ContactoViewModel
 
     [Required(ErrorMessage = "El nombre es requerido")]
     [Display(Name = "Nombre Completo")]
-    public string NombreCompleto { get; set; } = null!;
+    public string Nombre { get; set; } = null!;
+
+    [Required(ErrorMessage = "El primer apellido es requerido")]
+    [Display(Name = "Primer apellido")]
+    public string PrimerApellido { get; set; } = null!;
+
+    [Display(Name = "Segundo apellido")]
+    public string? SegundoApellido { get; set; }
 
     [Required(ErrorMessage = "La fecha de nacimiento es requerida")]
     [Display(Name = "Fecha de Nacimiento")]
