@@ -139,7 +139,6 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
     {
         return await _applicationDbContext.Contactos
             .Include(U => U.Detalle)
-            .ThenInclude(d => d.URL)
             .FirstOrDefaultAsync(U => U.ContactoId == contactoId);
     }
 

@@ -6,7 +6,7 @@ public interface IRedSocialHelper
 
     int ObtenerTipoRedSocialId(string tipoRedSocial);
 
-    string? ExtraerUsername(string url);
+    string? ExtraerUserName(string url);
 
     bool EsUsernameValido(string username);
 

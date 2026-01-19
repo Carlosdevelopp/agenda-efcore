@@ -45,7 +45,7 @@ public class RedSocialHelper : IRedSocialHelper
         };
     }
 
-    public string? ExtraerUsername(string url)
+    public string? ExtraerUserName(string url)
     {
         if (string.IsNullOrWhiteSpace(url))
             return null;

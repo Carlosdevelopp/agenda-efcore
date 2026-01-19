@@ -32,8 +32,6 @@ public class CreateContactViewModel
     [DataType(DataType.PhoneNumber)]
     public string Telefono { get; set; } = null!;
 
-    public int UsuarioId { get; set; }
-
     public string? Instagram { get; set; }
     public string? Facebook { get; set; }
     public string? Twitter { get; set; }

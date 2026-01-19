@@ -65,20 +65,14 @@
                         <div class="card bg-transparent border border-white border-opacity-10 rounded-4 p-4 h-100 @(contacto.Edad == 30 ? "card-birthday-active" : "")"
                              style="background: rgba(255,255,255,0.03); backdrop-filter: blur(10px);">
 
-                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                <div class="bg-info bg-opacity-20 text-info fw-bold rounded-3 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px; border: 1px solid rgba(0,210,255,0.3);">
-                                    @contacto.NombreCompleto.Substring(0, 1)
-                                </div>
-
-                                @if (contacto.Edad == 30)
+           @*                  <div class="d-flex justify-content-between align-items-center mb-4">
+                                @if ()
                                 {
-                                    <span class="badge rounded-pill" style="background: var(--accent-gold); color: #000; font-weight: 800; font-size: 0.65rem; padding: 6px 12px;">
+                                    <span class="badge rounded-pill" style="background: var(--accent-gold); color: #FFF; font-weight: 100; font-size: 0.65rem; padding: 16px 12px;">
                                         <i class="bi bi-gift-fill me-1"></i> ¡CUMPLEAÑOS!
                                     </span>
                                 }
-                            </div>
-
-                            <p class="text-muted small mb-4">ID Registro: #@contacto.ContactoId</p>
+                            </div> *@
 
                             <div class="p-3 rounded-3 mb-4" style="background: rgba(0,0,0,0.3);">
                                 <!-- Foto del contacto -->
@@ -86,7 +80,7 @@
                                     @if (!string.IsNullOrEmpty(contacto.FotoRuta))
                                     {
                                         <img src="@contacto.FotoRuta"
-                                             alt="Foto de @contacto.NombreCompleto"
+                                             alt="Foto de @contacto.Nombre + @contacto.PrimerApellido + @contacto.SegundoApellido"
                                              class="rounded-circle"
                                              style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #0dcaf0;" />
                                     }
@@ -99,7 +93,7 @@
                                     }
                                 </div>
 
-                                <h5 class="fw-bold text-white mb-3 text-center">@contacto.NombreCompleto</h5>
+                                <h5 class="fw-bold text-white mb-3 text-center">@contacto.Nombre @contacto.PrimerApellido @contacto.SegundoApellido</h5>
 
                                 <div class="d-flex justify-content-between mb-2 small">
                                     <span class="text-muted">Móvil</span>
