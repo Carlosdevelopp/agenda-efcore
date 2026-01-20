@@ -4,6 +4,7 @@ using Infrastructure.DTOs;
 using MiAgendaEF.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 namespace MiAgendaEF.Controllers;
 
 [Authorize]
@@ -101,7 +102,7 @@ public class ContactsController : BaseController
             string? fotoRuta = null; 
             if (model.FotoRuta != null && model.FotoRuta.Length > 0)
             {
-                fotoRuta = await _FileStorage.SaveFileAsync(model.FotoRuta, "contactos");
+                fotoRuta = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
             }
 
             var dto = new CrearContactoDto
@@ -163,7 +164,7 @@ public class ContactsController : BaseController
                 return RedirectToAction(nameof(Index));
             }
 
-            var model = new ContactoViewModel
+            var model = new CreateContactViewModel
             {
                 ContactoId = contactoExistente.ContactoId,
                 Nombre = contactoExistente.Nombre,
@@ -171,7 +172,6 @@ public class ContactsController : BaseController
                 SegundoApellido = contactoExistente.SegundoApellido,
                 Telefono = contactoExistente.Telefono,
                 FechaNacimiento = contactoExistente.FechaNacimiento,
-                Edad = _miAgendaInfrastructure.CalcularEdad(contactoExistente.FechaNacimiento),
                 FotoRuta = contactoExistente.FotoRuta,
                 UsuarioId = contactoExistente.UsuarioId,
 
@@ -180,7 +180,7 @@ public class ContactsController : BaseController
                 Twitter = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 3)?.URL
             };
 
-            return View(model);
+            return View("Edit",model);
         }
         catch (Exception ex)
         {
@@ -192,7 +192,7 @@ public class ContactsController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(int contactoId, ContactoViewModel model)
+    public async Task<IActionResult> Update(int contactoId, CreateContactViewModel model)
     {
         if (contactoId != model.ContactoId)
             return NotFound();
@@ -235,7 +235,7 @@ public class ContactsController : BaseController
                 Twitter = model.Twitter
             };
 
-            var updateResult = await _miAgendaInfrastructure.UpdateContactAsync(dto, usuarioId);
+            await _miAgendaInfrastructure.UpdateContactAsync(dto, usuarioId);
 
             TempData["SuccessMessage"] = "Contacto actualizado exitosamente.";
             return RedirectToAction(nameof(Index));

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MiAgendaEF.Models.ViewModels;
 
@@ -23,8 +22,10 @@ public class CreateContactViewModel
     [DataType(DataType.Date)]
     public DateTime FechaNacimiento { get; set; }
 
-    [Display(Name = "Foto")]
-    public IFormFile? FotoRuta { get; set; }
+    [Display(Name = "Foto de perfil")]
+    public IFormFile? FotoPerfil { get; set; }
+
+    public string? FotoRuta { get; set; }
 
     [Required(ErrorMessage = "El Teléfono es obligatorio.")]
     [Phone(ErrorMessage = "Formato de teléfono invalido.")]
@@ -35,4 +36,6 @@ public class CreateContactViewModel
     public string? Instagram { get; set; }
     public string? Facebook { get; set; }
     public string? Twitter { get; set; }
+
+    public int UsuarioId { get; set; }
 }

@@ -32,7 +32,6 @@ public class LocalFileStorageService : ILocalFileStorageService
         // Crear nombre único
         var fileName = $"{Guid.NewGuid()}{extension}";
 
-        // Ruta en wwwwroot
         var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", folder);
 
         // Crear directorio si no existe
