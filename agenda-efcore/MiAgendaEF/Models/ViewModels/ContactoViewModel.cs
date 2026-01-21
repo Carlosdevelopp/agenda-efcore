@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MiAgendaEF.Models.ViewModels;
 
@@ -36,11 +35,6 @@ public class ContactoViewModel
 
     public int UsuarioId { get; set; }
 
-    public string? Instagram { get; set; } 
-    public string? Facebook { get; set; } 
-    public string? Twitter { get; set; } 
-
     //public int UsuarioId { get; set; }
     public List<RedSocialViewModel> RedesSociales { get; set; } = new List<RedSocialViewModel>();
-    public IEnumerable<SelectListItem> RedesDisponibles { get; set; } = new List<SelectListItem>();
 }

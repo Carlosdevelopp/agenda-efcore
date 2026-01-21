@@ -85,7 +85,7 @@ public class ContactsController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateContactViewModel model)
+    public async Task<IActionResult> Create(ContactSocialViewModel model)
     {
         if (!ModelState.IsValid)
             return View(model);
@@ -99,10 +99,10 @@ public class ContactsController : BaseController
                 return RedirectToAction("Login", "Account");
             }
 
-            string? fotoRuta = null; 
-            if (model.FotoRuta != null && model.FotoRuta.Length > 0)
+            string? FotoPerfil = null; 
+            if (model.FotoPerfil != null && model.FotoPerfil.Length > 0)
             {
-                fotoRuta = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
+                FotoPerfil = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
             }
 
             var dto = new CrearContactoDto
@@ -112,7 +112,8 @@ public class ContactsController : BaseController
                 SegundoApellido = model.SegundoApellido,
                 Telefono = model.Telefono,
                 FechaNacimiento = model.FechaNacimiento,
-                FotoRuta = fotoRuta,
+                FotoPerfil = model.FotoPerfil,
+                FotoRuta = model.FotoRuta,
                 Instagram = model.Instagram,
                 Facebook = model.Facebook,
                 Twitter = model.Twitter
@@ -164,7 +165,7 @@ public class ContactsController : BaseController
                 return RedirectToAction(nameof(Index));
             }
 
-            var model = new CreateContactViewModel
+            var model = new ContactSocialViewModel
             {
                 ContactoId = contactoExistente.ContactoId,
                 Nombre = contactoExistente.Nombre,
@@ -192,7 +193,7 @@ public class ContactsController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(int contactoId, CreateContactViewModel model)
+    public async Task<IActionResult> Update(int contactoId, ContactSocialViewModel model)
     {
         if (contactoId != model.ContactoId)
             return NotFound();

@@ -2,7 +2,7 @@
 
 namespace MiAgendaEF.Models.ViewModels;
 
-public class CreateContactViewModel
+public class ContactSocialViewModel
 {
     public int ContactoId { get; set; }
 
@@ -33,8 +33,13 @@ public class CreateContactViewModel
     [DataType(DataType.PhoneNumber)]
     public string Telefono { get; set; } = null!;
 
+    [RegularExpression(@"^[A-Za-z0-9_.]{1,30}$", ErrorMessage = "Usuario de Instagram no válido")]
     public string? Instagram { get; set; }
+
+    [RegularExpression(@"^[A-Za-z0-9.]{5,50}$", ErrorMessage = "Usuario de Facebook no válido")]
     public string? Facebook { get; set; }
+
+    [RegularExpression(@"^[A-Za-z0-9_]{1,15}$", ErrorMessage = "Usuario de Twitter no válido")]
     public string? Twitter { get; set; }
 
     public int UsuarioId { get; set; }

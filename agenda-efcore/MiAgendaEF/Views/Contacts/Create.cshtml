@@ -1,5 +1,5 @@
 ﻿@using MiAgendaEF.Models.ViewModels
-@model CreateContactViewModel
+@model ContactSocialViewModel
 @{
     Layout = null;
 }
@@ -27,7 +27,7 @@
                         </div>
                         
                         <h2 class="fw-bold text-white mb-1">Registro</h2>
-                        <p class="text-muted small">Crea un nuevo perfil administrativo</p>
+                        <p class="text-light-custom small">Crea un nuevo perfil administrativo</p>
                     </div>
 
                     <form asp-controller="Contacts" asp-action="Create" method="post" enctype="multipart/form-data">
@@ -35,11 +35,11 @@
 
                         <!-- Campo para cargar foto -->
                         <div class="mb-3">
-                            <label asp-for="FotoRuta" class="label-pro">
+                            <label asp-for="FotoPerfil" class="label-pro">
                                 <i class="fas fa-camera me-2"></i>Foto de Perfil
                             </label>
-                            <input type="file" class="input-field-pro w-100" id="foto" name="FotoRuta" accept="image/*">
-                            <small class="text-muted" style="font-size: 0.75rem;">Formatos: JPG, PNG, GIF</small>
+                            <input  asp-for="FotoPerfil" type="file" class="input-field-pro w-100" id="foto" name="FotoPerfil" accept="image/*">
+                            <small class="text-light-custom" style="font-size: 0.75rem;">Formatos: JPG, PNG, GIF</small>
                         </div>
 
                         <div class="mb-4">
@@ -73,7 +73,7 @@
                                 <i class="fas fa-phone me-2"></i>Teléfono
                             </label>
                             <input type="tel" id="Telefono" name="Telefono" class="input-field-pro w-100" placeholder="Ej: 5512345678" pattern="[0-9]{10}" maxlength="10">
-                            <small class="text-muted" style="font-size: 0.75rem;">10 dígitos sin espacios</small>
+                            <small class="text-light-custom" style="font-size: 0.75rem;">10 dígitos sin espacios</small>
                         </div>
 
                         <!-- Sección de Redes Sociales -->
@@ -102,7 +102,7 @@
                                     <span>Usuario de Instagram</span>
                                 </div>
                                 <input type="text" name="Instagram" id="Instagram" class="input-field-pro w-100" placeholder="URL completa">
-                                <small class="text-muted" style="font-size: 0.75rem;">Ej:https://instagram.com/miusuario</small>
+                                <small class="text-light-custom" style="font-size: 0.75rem;">Nombre de usuario</small>
                             </div>
 
                             <!-- Input para Facebook -->
@@ -112,7 +112,7 @@
                                     <span>Perfil de Facebook</span>
                                 </div>
                                 <input type="text" name="Facebook" id="Facebook" class="input-field-pro w-100" placeholder="URL de tu perfil">
-                                <small class="text-muted" style="font-size: 0.75rem;">Ej: https://facebook.com/miperfil</small>
+                                <small class="text-light-custom" style="font-size: 0.75rem;">Nombre de usuario</small>
                             </div>
 
                             <!-- Input para Twitter -->
@@ -122,7 +122,7 @@
                                     <span>Usuario de Twitter</span>
                                 </div>
                                 <input type="text" name="Twitter" id="Twitter" class="input-field-pro w-100" placeholder="URL completa">
-                                <small class="text-muted" style="font-size: 0.75rem;">Ej: o https://twitter.com/miusuario</small>
+                                <small class="text-light-custom" style="font-size: 0.75rem;">Nombre de usuario</small>
                             </div>
                         </div>
 
@@ -133,7 +133,7 @@
                         </div>
 
                         <div class="text-center mt-4">
-                            <a asp-action="Login" class="text-muted small text-decoration-none">
+                            <a asp-action="Login" class="text-light-custom small text-decoration-none">
                                 ¿Ya tienes cuenta? <span class="text-info fw-bold">Inicia Sesión</span>
                             </a>
                         </div>
