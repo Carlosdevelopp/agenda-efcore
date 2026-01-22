@@ -58,7 +58,7 @@ public class LocalFileStorageService : ILocalFileStorageService
             var fullPath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/'));
 
             if (File.Exists(fullPath))
-                return Task.FromResult(true);
+                File.Delete(fullPath);
 
             return Task.FromResult(false);
     }

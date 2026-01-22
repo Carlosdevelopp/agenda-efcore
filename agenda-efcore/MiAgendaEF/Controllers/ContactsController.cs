@@ -99,10 +99,10 @@ public class ContactsController : BaseController
                 return RedirectToAction("Login", "Account");
             }
 
-            string? FotoPerfil = null; 
+            string? fotoRuta = null; 
             if (model.FotoPerfil != null && model.FotoPerfil.Length > 0)
             {
-                FotoPerfil = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
+                fotoRuta = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
             }
 
             var dto = new CrearContactoDto
@@ -112,8 +112,7 @@ public class ContactsController : BaseController
                 SegundoApellido = model.SegundoApellido,
                 Telefono = model.Telefono,
                 FechaNacimiento = model.FechaNacimiento,
-                FotoPerfil = model.FotoPerfil,
-                FotoRuta = model.FotoRuta,
+                FotoRuta = fotoRuta,
                 Instagram = model.Instagram,
                 Facebook = model.Facebook,
                 Twitter = model.Twitter
@@ -176,12 +175,12 @@ public class ContactsController : BaseController
                 FotoRuta = contactoExistente.FotoRuta,
                 UsuarioId = contactoExistente.UsuarioId,
 
-                Instagram = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 1)?.URL,
-                Facebook = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 2)?.URL,
-                Twitter = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 3)?.URL
+                Instagram = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 1)?.NombreUsuarioRed,
+                Facebook = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 2)?.NombreUsuarioRed,
+                Twitter = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 3)?.NombreUsuarioRed
             };
 
-            return View("Edit",model);
+            return View("Update", model);
         }
         catch (Exception ex)
         {
@@ -210,7 +209,7 @@ public class ContactsController : BaseController
                 return RedirectToAction("Login", "Account");
             }
 
-            string? nuevaFotoRuta = model.FotoRuta;
+            string? fotoRuta = model.FotoRuta;
 
             if (model.FotoPerfil != null && model.FotoPerfil.Length > 0 )
             {
@@ -219,10 +218,10 @@ public class ContactsController : BaseController
                     await _FileStorage.DeleteFileAsync(model.FotoRuta);
                 }
 
-                nuevaFotoRuta = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
+                fotoRuta = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
             }
 
-            var dto  = new ActualizarContactoDto
+            var dto = new ActualizarContactoDto
             {
                 ContactoId = model.ContactoId,
                 Nombre = model.Nombre,
@@ -230,7 +229,7 @@ public class ContactsController : BaseController
                 SegundoApellido = model.SegundoApellido,
                 Telefono = model.Telefono,
                 FechaNacimiento = model.FechaNacimiento,
-                FotoRuta = nuevaFotoRuta,
+                FotoRuta = fotoRuta,
                 Instagram = model.Instagram,
                 Facebook = model.Facebook,
                 Twitter = model.Twitter

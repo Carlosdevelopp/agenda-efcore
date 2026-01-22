@@ -1,4 +1,6 @@
-﻿namespace Infrastructure.DTOs;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Infrastructure.DTOs;
 
 public class ActualizarContactoDto
 {
@@ -9,6 +11,7 @@ public class ActualizarContactoDto
     public string Telefono { get; set; } = string.Empty;
     public DateTime FechaNacimiento { get; set; }
     public string? FotoRuta { get; set; } = string.Empty;
+    public IFormFile? FotoPerfil { get; set; }
     public string FotoRutaAnterior { get; set; } = string.Empty;
     public string? Instagram { get; set; }  
     public string? Facebook { get; set; } 
