@@ -9,7 +9,6 @@ public class CrearContactoDto
     public string? SegundoApellido { get; set; } 
     public string Telefono { get; set; } = string.Empty;
     public DateTime FechaNacimiento { get; set; }
-    public IFormFile? FotoPerfil { get; set; }
     public string? FotoRuta { get; set; } = string.Empty;
     public string? Instagram { get; set; }
     public string? Facebook { get; set; } 

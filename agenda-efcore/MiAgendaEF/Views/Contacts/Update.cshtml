@@ -23,7 +23,7 @@
 
                         @if (!string.IsNullOrEmpty(Model.FotoRuta))
                         {
-                                <div id="fotoPreviewContainer" class="text-center mb-3">
+                            <div id="fotoPreviewContainer" class="text-center mb-3">
                                 <img src="@Model.FotoRuta" alt="Foto actual" class="foto-preview"
                                      style="width: 150px; height: 150px; border-radius: 50%; -o-object-fit: cover;" />
                                 <p class="text-light-custom smalll">Foto actual</p>
@@ -32,10 +32,9 @@
                         {
                             <div class="mb-3">
                                 <i class="bi bi-person-circle text-info" style="font-size: 3rem;"></i>
+                                <p class="text-muted small">Actualiza la información del contacto</p>
                             </div>
                         }
-
-                        <h2 class="fw-bold text-white mb-1">Actualizar a @Model.Nombre</h2>
                     </div>
 
                     <form asp-controller="Contacts" asp-action="Update" method="post" enctype="multipart/form-data">
@@ -83,7 +82,7 @@
                             <label asp-for="Telefono" class="label-pro">
                                 <i class="fas fa-phone me-2"></i>Teléfono
                             </label>
-                            <input asp-for="Telefono" type="tel" class="input-field-pro w-100" placeholder="Ej: 5512345678">
+                            <input asp-for="Telefono" type="tel" class="input-field-pro w-100" placeholder="Ej: 5512345678" pattern="[0-9]{10}" maxlength="10">
                             <small class="text-light-custom" style="font-size: 0.75rem;">10 dígitos sin espacios</small>
                             <span asp-validation-for="Telefono" class="text-danger small"></span>
                         </div>
@@ -111,7 +110,7 @@
                             <div id="input-instagram" class="social-input-container">
                                 <div class="social-label label-pro">
                                     <i class="fab fa-instagram" style="color: #e1306c;"></i>
-                                    <label asp-for="Instagram">Perfil de Instagram</label>
+                                    <label asp-for="Instagram">Instagram</label>
                                 </div>
 
                                 <input asp-for="Instagram" class="input-field-pro w-100" placeholder="Usuario"/>
@@ -123,7 +122,7 @@
                             <div id="input-facebook" class="social-input-container">
                                 <div class="social-label label-pro">
                                     <i class="fab fa-facebook-f" style="color: #1877f2;"></i>
-                                    <label asp-for="Facebook">Perfil de Facebook</label>
+                                    <label asp-for="Facebook">Facebook</label>
                                 </div>
 
                                 <input asp-for="Facebook" class="input-field-pro w-100" placeholder="Usuario">
@@ -135,7 +134,7 @@
                             <div id="input-twitter" class="social-input-container">
                                 <div class="social-label label-pro">
                                     <i class="fab fa-twitter" style="color: #1da1f2;"></i>
-                                    <label asp-for="Twitter">Perfil de Twitter</label>
+                                    <label asp-for="Twitter">Twitter</label>
                                 </div>
 
                                 <input asp-for="Twitter" class="input-field-pro w-100" placeholder="Usuario" />
