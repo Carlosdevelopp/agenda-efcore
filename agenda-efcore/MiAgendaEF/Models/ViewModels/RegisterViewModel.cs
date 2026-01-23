@@ -45,5 +45,6 @@ public class RegisterViewModel
 
     // --- Archivo Subido ---
     // Usar IFormFile para recibir el archivo binario
-    //public IFormFile? FotoArchivo { get; set; }
+    [Display(Name = "FotoUsuario")]
+    public IFormFile? FotoUsuario { get; set; }
 }
