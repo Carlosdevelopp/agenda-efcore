@@ -39,17 +39,19 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 
     public async Task<(bool Success, string Message)> RegisterUserAsync(Usuario model)
     {
+
         bool existe = await _miAgendaDataAccess.ExistsUserAsync(model.Correo, model.NombreUsuario);
 
         if (existe)
             return (false, "Ël correo o nombre de usuario ya está registrado.");
 
-        model.Password = _passwordHasher.Hash(model.Password);
+        string passwordHash = _passwordHasher.Hash(model.Password);
 
+        model.Password = passwordHash;
         model.FechaRegistro = DateTime.Now;
         model.Estado = true;
 
-        await _miAgendaDataAccess.RegisterAsync(model);
+        await _miAgendaDataAccess.RegisterUserAsync(model);
 
         return (true, "Usuario registrado correctamente.");
     }
