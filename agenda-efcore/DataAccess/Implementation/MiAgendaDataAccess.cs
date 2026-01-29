@@ -30,7 +30,7 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         return await _applicationDbContext.Usuarios.FirstOrDefaultAsync(u => u.UsuarioId == usuarioId);
     }
 
-    public async Task<Usuario> RegisterAsync(Usuario usuario)
+    public async Task<Usuario> RegisterUserAsync(Usuario usuario)
     {
         _applicationDbContext.Usuarios.Add(usuario);
         await _applicationDbContext.SaveChangesAsync();

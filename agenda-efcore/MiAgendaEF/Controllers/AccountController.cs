@@ -1,6 +1,7 @@
 ﻿using Agenda.EFCore.Models.ViewModels;
 using DataAccess.Models.Tables;
 using Infrastructure.Contract;
+using Infrastructure.Implementation.Security;
 using MiAgendaEF.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -14,11 +15,13 @@ public class AccountController : Controller
 {
     private readonly IMiAgendaInfrastructure _miAgendaInfrastructure;
     private readonly ILogger<AccountController> _logger;
+    private readonly ILocalFileStorageService _localFileStorageService;
 
-    public AccountController(IMiAgendaInfrastructure miAgendaInfrastructure, ILogger<AccountController> logger)
+    public AccountController(IMiAgendaInfrastructure miAgendaInfrastructure, ILogger<AccountController> logger, ILocalFileStorageService localFileStorageService)
     {
         _miAgendaInfrastructure = miAgendaInfrastructure;
         _logger = logger;
+        _localFileStorageService = localFileStorageService;
     }
 
     public IActionResult Index()
@@ -140,6 +143,12 @@ public class AccountController : Controller
 
         try
         {
+            string? rutaFoto = null;
+            if (model.FotoUsuario != null && model.FotoUsuario.Length > 0)
+            {
+                rutaFoto = await _localFileStorageService.SaveFileAsync(model.FotoUsuario, "usuarios");
+            }
+
             var usuario = new Usuario
             {
                 Nombre = model.Nombre,
@@ -148,7 +157,10 @@ public class AccountController : Controller
                 Correo = model.Correo,
                 NombreUsuario = model.NombreUsuario,
                 Password = model.Password,
+                RutaFoto = rutaFoto,
                 Telefono = model.Telefono,
+                Estado = true,
+                FechaAceptacionTerminos = DateTime.Now
             };
 
             var result = await _miAgendaInfrastructure.RegisterUserAsync(usuario);

@@ -1,10 +1,11 @@
 ﻿@using MiAgendaEF.Models.ViewModels
 @model RegisterViewModel
+
 @{
+    ViewData["Title"] = "Registro";
     Layout = null;
 }
 
-<!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -84,7 +85,7 @@
                                 <br>
                                 <small class="text-muted" style="font-size: 0.75rem;">JPG, PNG o GIF (máx. 5MB)</small>
                             </div>
-                            <input type="file" name="fotoUsuarioInput" id="fotoUsuarioInput" class="d-none" accept="image/jpeg,image/png,image/gif" />
+                            <input type="file" name="FotoUsuario" id="fotoUsuarioInput" class="d-none" accept="image/jpeg,image/png,image/gif" />
                             <div class="text-danger small mt-2" id="fotoError"></div>
                         </div>
 
@@ -93,40 +94,67 @@
                                 <label asp-for="Nombre" class="form-label small fw-bold text-secondary text-uppercase">
                                     <i class="bi bi-person me-1"></i>Nombre
                                 </label>
-                                <input asp-for="Nombre" class="form-control bg-light border-0 py-3 px-4" placeholder="Tu nombre" />
+                                <input asp-for="Nombre" class="form-control bg-light border-0 py-3 px-4" 
+                                       placeholder="Tu nombre" 
+                                       pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30}"
+                                       maxlength="30"
+                                       oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '') "/>
                                 <span asp-validation-for="Nombre" class="text-danger small"></span>
+                                <small class="text-muted" style="font-size: 0.75rem;">Solo letras y espacios</small>
                             </div>
 
                             <div class="col-md-6">
                                 <label asp-for="PrimerApellido" class="form-label small fw-bold text-secondary text-uppercase">
                                     Primer Apellido
                                 </label>
-                                <input asp-for="PrimerApellido" class="form-control bg-light border-0 py-3 px-4" placeholder="Apellido paterno" />
+                                <input asp-for="PrimerApellido" class="form-control bg-light border-0 py-3 px-4" 
+                                       placeholder="Apellido paterno"
+                                       pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30}"
+                                       maxlength="30"
+                                       oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '') "/>
                                 <span asp-validation-for="PrimerApellido" class="text-danger small"></span>
+                                <small class="text-muted" style="font-size: 0.75rem;">Solo letras y espacios</small>
                             </div>
 
                             <div class="col-md-6">
                                 <label asp-for="SegundoApellido" class="form-label small fw-bold text-secondary text-uppercase">
                                     Segundo Apellido
                                 </label>
-                                <input asp-for="SegundoApellido" class="form-control bg-light border-0 py-3 px-4" placeholder="Apellido materno" />
+                                <input asp-for="SegundoApellido" class="form-control bg-light border-0 py-3 px-4" 
+                                        placeholder="Apellido materno" 
+                                        pattern="[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30}"
+                                        maxlength="30"
+                                        oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '') "/>
                                 <span asp-validation-for="SegundoApellido" class="text-danger small"></span>
+                                 <small class="text-muted" style="font-size: 0.75rem;">Solo letras y espacios</small>
                             </div>
 
                             <div class="col-md-6">
                                 <label asp-for="NombreUsuario" class="form-label small fw-bold text-secondary text-uppercase">
                                     <i class="bi bi-at me-1"></i>Usuario
                                 </label>
-                                <input asp-for="NombreUsuario" class="form-control bg-light border-0 py-3 px-4" placeholder="nombre_usuario" />
+                                <input asp-for="NombreUsuario"
+                                       class="form-control bg-light border-0 py-3 px-4"
+                                       placeholder="nombre_usuario"
+                                       pattern="[a-zA-Z0-9_]{3,20}"
+                                       maxlength="20"
+                                       oninput="this.value = this.value.replace(/[^a-zA-Z0-9_]/g, '')" />
                                 <span asp-validation-for="NombreUsuario" class="text-danger small"></span>
+                                <small class="text-muted" style="font-size: 0.75rem;">
+                                    Solo letras, números y guión bajo (3-20 caracteres)
+                                </small>
                             </div>
 
                             <div class="col-12">
                                 <label asp-for="Correo" class="form-label small fw-bold text-secondary text-uppercase">
                                     <i class="bi bi-envelope me-1"></i>Correo Electrónico
                                 </label>
-                                <input asp-for="Correo" type="email" class="form-control bg-light border-0 py-3 px-4" placeholder="correo@ejemplo.com" />
+                                <input asp-for="Correo" type="email" class="form-control bg-light border-0 py-3 px-4" 
+                                        placeholder="correo@ejemplo.com"
+                                        maxlength="100"
+                                        oninput="this.value = this.value.replace(/\s/g, '')" />
                                 <span asp-validation-for="Correo" class="text-danger small"></span>
+                                 <small class="text-muted" style="font-size: 0.75rem;">Sin espacios</small>
                             </div>
 
                             <div class="col-md-6">
@@ -160,14 +188,18 @@
                                 <label asp-for="Telefono" class="form-label small fw-bold text-secondary text-uppercase">
                                     <i class="bi bi-telephone me-1"></i>Teléfono
                                 </label>
-                                <input asp-for="Telefono" type="tel" class="form-control bg-light border-0 py-3 px-4" placeholder="10 dígitos" maxlength="10" />
+                                <input asp-for="Telefono" type="tel" class="form-control bg-light border-0 py-3 px-4" 
+                                        placeholder="10 dígitos"
+                                        pattern="[0-9]{10}"
+                                        maxlength="10"
+                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" />
                                 <span asp-validation-for="Telefono" class="text-danger small"></span>
                             </div>
                         </div>
 
                         <div class="form-check mt-4">
-                            <input asp-for="AceptaTerminos" class="form-check-input" id="terms" />
-                            <label asp-for="AceptaTerminos" class="form-check-label small" for="terms">
+                            <input asp-for="AceptaTerminos" class="form-check-input"/>
+                            <label asp-for="AceptaTerminos" class="form-check-label small">
                                 Acepto los <a href="#" class="text-decoration-none">términos y condiciones</a>
                                 y la <a href="#" class="text-decoration-none">política de privacidad</a>
                             </label>
@@ -192,5 +224,10 @@
             </div>
         </div>
     </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
 </body>
 </html>

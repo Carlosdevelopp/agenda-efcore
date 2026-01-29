@@ -6,23 +6,26 @@ public class RegisterViewModel
 {
     // --- Datos Personales del Formulario ---
     [Required(ErrorMessage = "El Nombre es obligatorio.")]
-    [StringLength(30, ErrorMessage = "El nombre no puede ecceder de 30 caracteres")]
+    [StringLength(30, MinimumLength = 3, ErrorMessage = "Debe tener entre 3 y 30 caracteres")]
+    [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = "Solo letras")]
     [Display(Name = "Nombre")]
     public string Nombre { get; set; } = null!;
 
     [Required(ErrorMessage = "El primer Apellido es obligatorio.")]
-    [StringLength(30, ErrorMessage = "El apellido no puede acceder de 30 caracteres")]
+    [StringLength(30, MinimumLength = 3, ErrorMessage = "Debe tener entre 3 y 30 caracteres")]
+    [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = "Solo letras")]
     [Display(Name = "Primer Apellido")]
     public string PrimerApellido { get; set; } = null!;
 
-    [StringLength(30, ErrorMessage = "El apellido no puede ecceder de 30 caracteres")]
     [Display(Name = "Segundo Apellido")]
-    public string? SegundoApellido { get; set; } = null!;
+    [StringLength(30, MinimumLength = 3, ErrorMessage = "Debe tener entre 3 y 30 caracteres")]
+    [RegularExpression(@"^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$", ErrorMessage = "Solo letras")]
+    public string? SegundoApellido { get; set; } 
 
     [Required(ErrorMessage = "El correo es obligatorio.")]
     [EmailAddress(ErrorMessage = "Formato de correo inválido")]
     [Display(Name = "Correo Electrónico")]
-    [StringLength(30)]
+    [StringLength(100)]
     public string Correo { get; set; } = null!;
 
     [Required(ErrorMessage = "El Nombre de Usuario es obligatorio.")]
@@ -35,7 +38,7 @@ public class RegisterViewModel
 
     [Required(ErrorMessage = "La Contraseña es obligatoria")]
     [DataType(DataType.Password)]
-    [StringLength(50, ErrorMessage = "Debe tener almenos 7 caracteres.")]
+    [StringLength(50, MinimumLength = 7, ErrorMessage = "Debe tener al menos 7 caracteres.")]
     [Display(Name = "Contraseña")]
     public string Password { get; set; } = null!;
 
@@ -52,7 +55,7 @@ public class RegisterViewModel
     [DataType(DataType.PhoneNumber)]
     public string Telefono { get; set; } = null!;
 
-    // --- Archivo Subido ---
+    // - Archivo Subido -
     // Usar IFormFile para recibir el archivo binario
     [Display(Name = "FotoUsuario")]
     public IFormFile? FotoUsuario { get; set; }
