@@ -1,6 +1,7 @@
 ﻿using Agenda.EFCore.Models.ViewModels;
 using DataAccess.Models.Tables;
 using Infrastructure.Contract;
+using Infrastructure.DTOs;
 using MiAgendaEF.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -140,7 +141,7 @@ public class AccountController : Controller
 
         try
         {
-            var usuario = new Usuario
+            var dto = new RegisterUserDTO
             {
                 Nombre = model.Nombre,
                 PrimerApellido = model.PrimerApellido,
@@ -149,9 +150,10 @@ public class AccountController : Controller
                 NombreUsuario = model.NombreUsuario,
                 Password = model.Password,
                 Telefono = model.Telefono,
+                FotoUsuario = model.FotoUsuario
             };
 
-            var result = await _miAgendaInfrastructure.RegisterUserAsync(usuario);
+            var result = await _miAgendaInfrastructure.RegisterUserAsync(dto);
 
             if (!result.Success)
             {

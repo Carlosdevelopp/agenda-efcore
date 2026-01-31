@@ -1,6 +1,8 @@
-﻿namespace Infrastructure.Helpers;
+﻿using Infrastructure.Contract;
 
-public class RedSocialHelper
+namespace Infrastructure.Helpers;
+
+public class RedSocialHelper : IRedSocialHelper
 {
     public string? NormalizarUrlRedSocial(string input, string tipoRedSocial)
     {

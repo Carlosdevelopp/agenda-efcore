@@ -13,4 +13,5 @@ public class Usuario
     public string? Telefono { get; set; } = null!;
     public DateTime FechaRegistro { get; set; }
     public bool Estado { get; set; }
+    public DateTime FechaAceptacionTerminos { get; set; }
 }

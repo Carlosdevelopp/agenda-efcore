@@ -8,9 +8,9 @@ namespace Infrastructure.Services;
 public class LocalFileStorageService : ILocalFileStorageService
 {
     private readonly IWebHostEnvironment _environment;
-    private readonly ILogger _logger;
+    private readonly ILogger<LocalFileStorageService> _logger;
 
-    public LocalFileStorageService(IWebHostEnvironment environment, ILogger logger)
+    public LocalFileStorageService(IWebHostEnvironment environment, ILogger<LocalFileStorageService> logger)
     {
         _environment = environment;
         _logger = logger;
@@ -58,15 +58,19 @@ public class LocalFileStorageService : ILocalFileStorageService
 
     public Task<bool> DeleteFileAsync(string filePath)
     {
-        if (string.IsNullOrEmpty(filePath))
+        if (string.IsNullOrWhiteSpace(filePath))
             return Task.FromResult(false);
 
         try
         {
-            var fullPath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/'));
+            var fullPath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
 
             if (File.Exists(fullPath))
                 return Task.FromResult(true);
+
+            File.Delete(fullPath);
+
+            _logger.LogInformation("Archivo eliminado: {FilePath}", filePath);
 
             return Task.FromResult(false);
         }

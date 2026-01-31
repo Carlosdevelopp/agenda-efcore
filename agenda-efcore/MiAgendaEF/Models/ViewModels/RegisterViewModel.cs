@@ -25,6 +25,8 @@ public class RegisterViewModel
     [Display(Name = "Nombre de Usuario")]
     public string NombreUsuario { get; set; } = null!;
 
+    public IFormFile? FotoUsuario { get; set; }
+
     // --- Credenciales y Seguridad de la UI ---
 
     [Required(ErrorMessage = "La Contraseña es obligatoria")]
@@ -42,8 +44,4 @@ public class RegisterViewModel
     [Display(Name = "Teléfono")]
     [DataType(DataType.PhoneNumber)]
     public string Telefono { get; set; } = null!;
-
-    // --- Archivo Subido ---
-    // Usar IFormFile para recibir el archivo binario
-    //public IFormFile? FotoArchivo { get; set; }
 }
