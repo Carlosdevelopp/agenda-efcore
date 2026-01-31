@@ -17,7 +17,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
 
 builder.Services.AddScoped<IMiAgendaInfrastructure, MiAgendaInfrastructure>();
 builder.Services.AddScoped<IMiAgendaDataAccess, MiAgendaDataAccess>();
-
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ILocalFileStorageService, LocalFileStorageService>();
