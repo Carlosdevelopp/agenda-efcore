@@ -1,20 +1,20 @@
 ﻿using Infrastructure.Contract;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services;
 
 public class LocalFileStorageService : ILocalFileStorageService
 {
-    private readonly IWebHostEnvironment _environment;
-    private readonly ILogger<LocalFileStorageService> _logger;
+  private readonly IWebHostEnvironment _environment;
+  private readonly ILogger<LocalFileStorageService> _logger;
 
-    public LocalFileStorageService(IWebHostEnvironment environment, ILogger<LocalFileStorageService> logger)
-    {
-        _environment = environment;
-        _logger = logger;
-    }
+  public LocalFileStorageService(IWebHostEnvironment environment, ILogger<LocalFileStorageService> logger)
+  {
+      _environment = environment;
+      _logger = logger;
+  }
+}
 
     public async Task<string?> SaveFileAsync(IFormFile file, string folder)
     {

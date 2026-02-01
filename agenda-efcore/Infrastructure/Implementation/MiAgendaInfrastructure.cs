@@ -18,7 +18,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     private readonly ILogger<MiAgendaInfrastructure> _logger;
     private readonly IRedSocialHelper _redSocialHelper;
     private readonly ILocalFileStorageService _localFileStorage;
-
+    
     public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess,IPasswordHasher passwordHasher,IEmailService emailService,ILogger<MiAgendaInfrastructure> logger, 
                                   IRedSocialHelper redSocialHelper, ILocalFileStorageService localFileStorage)
     {
@@ -40,7 +40,6 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         // verificar contraseña
         return _passwordHasher.Verify(usuario.Password, password) ? usuario : null;
     }
-
     public async Task<(bool Success, string Message)> RegisterUserAsync(RegisterUserDTO model)
     {
         string? rutaFoto = null;

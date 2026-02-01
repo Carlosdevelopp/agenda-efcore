@@ -23,7 +23,7 @@ builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IRedSocialHelper, RedSocialHelper>();
 
-//Agregar autenticación con cookies
+//Agregar autenticaciÃ³n con cookies
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
     options.LoginPath = "/Account/Login";
@@ -36,7 +36,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.Cookie.SameSite = SameSiteMode.Strict;
 });
 
-//Agregar autorización
+//Agregar autorizaciÃ³n
 builder.Services.AddAuthorization();
 
 builder.Services.AddHttpContextAccessor();
