@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace Infrastructure.DTOs;
+﻿namespace Infrastructure.DTOs;
 
 public class CrearContactoDto
 {

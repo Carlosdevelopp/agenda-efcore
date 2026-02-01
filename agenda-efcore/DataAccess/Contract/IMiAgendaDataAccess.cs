@@ -1,5 +1,4 @@
-﻿using DataAccess.Implementation.Base;
-using DataAccess.Models.Tables;
+﻿using DataAccess.Models.Tables;
 
 namespace DataAccess.Contract;
 
