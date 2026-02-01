@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MiAgendaEF.Models.ViewModels;
 
-public class CreateContactViewModel
+public class ContactSocialViewModel
 {
     public int ContactoId { get; set; }
 
@@ -23,8 +22,10 @@ public class CreateContactViewModel
     [DataType(DataType.Date)]
     public DateTime FechaNacimiento { get; set; }
 
-    [Display(Name = "Foto")]
-    public IFormFile? FotoRuta { get; set; }
+    [Display(Name = "Foto de perfil")]
+    public IFormFile? FotoPerfil { get; set; }
+
+    public string? FotoRuta { get; set; }
 
     [Required(ErrorMessage = "El Teléfono es obligatorio.")]
     [Phone(ErrorMessage = "Formato de teléfono invalido.")]
@@ -32,14 +33,14 @@ public class CreateContactViewModel
     [DataType(DataType.PhoneNumber)]
     public string Telefono { get; set; } = null!;
 
+    [RegularExpression(@"^[A-Za-z0-9_.]{1,30}$", ErrorMessage = "Usuario de Instagram no válido")]
+    public string? Instagram { get; set; }
+
+    [RegularExpression(@"^[A-Za-z0-9.]{5,50}$", ErrorMessage = "Usuario de Facebook no válido")]
+    public string? Facebook { get; set; }
+
+    [RegularExpression(@"^[A-Za-z0-9_]{1,15}$", ErrorMessage = "Usuario de Twitter no válido")]
+    public string? Twitter { get; set; }
+
     public int UsuarioId { get; set; }
-
-    // La lista de las redes sociales que el usuario está agregando (los datos de entrada)
-    public List<RedSocialViewModel> RedesSociales { get; set; } = new List<RedSocialViewModel>();
-
-    // La lista de OPCIONES para el Dropdown (Se llena en el Controlador)
-    public IEnumerable<SelectListItem> RedesDisponibles { get; set; } = new List<SelectListItem>();
-
-    // Campo necesario para vincular el contacto con el usuario logueado
-    public int UsuarioPropietarioId { get; set; }
 }

@@ -22,7 +22,6 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ILocalFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<IRedSocialHelper, RedSocialHelper>();
 
-
 //Agregar autenticación con cookies
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {

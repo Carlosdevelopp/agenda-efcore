@@ -11,7 +11,8 @@ public class Usuario
     public string Password { get; set; } = null!;
     public string? RutaFoto { get; set; } 
     public string? Telefono { get; set; } = null!;
-    public DateTime FechaRegistro { get; set; }
+    public DateTime FechaRegistro { get; set; } 
     public bool Estado { get; set; }
-    public DateTime FechaAceptacionTerminos { get; set; }
+    public DateTime? UltimoAcceso { get; set; }
+    public DateTime? FechaAceptacionTerminos { get; set; }
 }

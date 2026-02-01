@@ -19,38 +19,39 @@ public class LocalFileStorageService : ILocalFileStorageService
     public async Task<string?> SaveFileAsync(IFormFile file, string folder)
     {
         if (file == null || file.Length == 0)
-            return null;
+            throw new InvalidOperationException("Archivo vacío.");
+
+        const long maxSize = 5 * 1024 * 1024;
+
+        // Validar tamaño (5MB máximo)
+        if (file.Length > maxSize)
+            throw new InvalidOperationException("El archivo es demasiado grande (máximo 5MB).");
 
         // Validar extensión
-        var allowedExtensions = new[] {".jpeg", ".jpg", ".png", ".gif" };
+        var allowedExtensions = new[] {".jpeg", ".jpg", ".png", ".gif"};
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
         if (!allowedExtensions.Contains(extension))
             throw new InvalidOperationException("Formato de archivo no permitido");
 
-        // Validar tamaño (5MB máximo)
-        if (file.Length > 5 * 1024 * 1024)
-            throw new InvalidOperationException("El archivo es demasiado grande (máximo 5MB)");
+        var allowedMimeTypes = new[]{"image/jpeg", "image/jpg", "image/png", "image.gif"};
 
-        // Crear nombre único
-        var fileName = $"{Guid.NewGuid()}{extension}";
+        if (!allowedMimeTypes.Contains(file.ContentType))
+            throw new InvalidOperationException("Tipo MIME no permitido.");
 
-        // Ruta en wwwwroot
         var uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads", folder);
 
         // Crear directorio si no existe
         if (!Directory.Exists(uploadsFolder))
             Directory.CreateDirectory(uploadsFolder);
 
+        // Crear nombre único
+        var fileName = $"{Guid.NewGuid()}{extension}";
         var filePath = Path.Combine(uploadsFolder, fileName);
 
         // Guardar archivo
-        using(var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        _logger.LogInformation($"Archivo guardado: {filePath}", filePath);
+        await using var stream = new FileStream(filePath, FileMode.Create);
+        await file.CopyToAsync(stream);
 
         // Retornar ruta relativa para guardar en BD
         return $"/uploads/{folder}/{fileName}";
@@ -65,18 +66,18 @@ public class LocalFileStorageService : ILocalFileStorageService
         {
             var fullPath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/').Replace("/", Path.DirectorySeparatorChar.ToString()));
 
-            if (File.Exists(fullPath))
-                return Task.FromResult(true);
+            if (!File.Exists(fullPath))
+                return Task.FromResult(false);
 
             File.Delete(fullPath);
 
             _logger.LogInformation("Archivo eliminado: {FilePath}", filePath);
 
-            return Task.FromResult(false);
+            return Task.FromResult(true);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al eliminar archivo: {Filepath}", filePath);
+            _logger.LogError(ex, "Error al eliminar archivo:{FilePath}", filePath);
             return Task.FromResult(false);
         }
     }

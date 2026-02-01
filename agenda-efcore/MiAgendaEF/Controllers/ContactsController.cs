@@ -4,6 +4,7 @@ using Infrastructure.DTOs;
 using MiAgendaEF.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 namespace MiAgendaEF.Controllers;
 
 [Authorize]
@@ -40,29 +41,35 @@ public class ContactsController : BaseController
             var contactos = await _miAgendaInfrastructure.GetContactsByUserIdAsync(usuarioId);
 
             //Crea ViewModel
-            var agendaViewModel = new AgendaViewModel
+            var contactosViewModel = contactos.Select(u => new ContactoViewModel
             {
-                Titulo = $"Agenda de {NombreUsuario}",
-                TotalContactos = contactos?.Count ?? 0,
-                Contactos = contactos?.Select(u => new ContactoViewModel
+                ContactoId = u.ContactoId,
+                Nombre = u.Nombre,
+                PrimerApellido = u.PrimerApellido,
+                SegundoApellido = u.SegundoApellido,
+                Telefono = u.Telefono,
+                Edad = _miAgendaInfrastructure.CalcularEdad(u.FechaNacimiento),
+                FotoRuta = u.FotoRuta,
+
+                RedesSociales = u.Detalle?.Select(d => new RedSocialViewModel
                 {
-                    ContactoId = u.ContactoId,
-                    NombreCompleto = $"{u.Nombre} {u.PrimerApellido}",
-                    Telefono = u.Telefono,
-                    Edad = _miAgendaInfrastructure.CalcularEdad(u.FechaNacimiento),
-                    RedesSociales = u.Detalle?.Select(d => new RedSocialViewModel
-                    {
-                        URL = d.URL
-                    }).ToList() ?? new List<RedSocialViewModel>()
-                }).ToList() ?? new List<ContactoViewModel>()
+                    TipoContactoId = d.TipoContactoId,
+                    URL = d.URL
+                }).ToList() ?? new List<RedSocialViewModel>()
+
+            }).ToList();
+
+            var model = new AgendaViewModel
+            {
+                Contactos = contactosViewModel,
+                TotalContactos = contactosViewModel.Count
             };
 
-            return View("Agenda", agendaViewModel);
+            return View("Agenda",model); 
         }
         catch (Exception ex)
         {
             // Si algo falla, redirigimos a una página de error o al Login con un mensaje
-
             _logger.LogError(ex, "Error al cargar agenda del usuario.");
             TempData["ErrorMessage"] = "No se pudieron cargar tus contactos. Por favor, reintenta.";
             return RedirectToAction("Login", "Account");
@@ -78,7 +85,7 @@ public class ContactsController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ContactoViewModel model)
+    public async Task<IActionResult> Create(ContactSocialViewModel model)
     {
         if (!ModelState.IsValid)
             return View(model);
@@ -100,7 +107,9 @@ public class ContactsController : BaseController
 
             var dto = new CrearContactoDto
             {
-                NombreCompleto = model.NombreCompleto,
+                Nombre = model.Nombre,
+                PrimerApellido = model.PrimerApellido,
+                SegundoApellido = model.SegundoApellido,
                 Telefono = model.Telefono,
                 FechaNacimiento = model.FechaNacimiento,
                 FotoRuta = fotoRuta,
@@ -127,7 +136,6 @@ public class ContactsController : BaseController
             return View(model);
         }
     }
-
 
     [HttpGet]
     public async Task<IActionResult> Update(int contactoId)
@@ -156,22 +164,23 @@ public class ContactsController : BaseController
                 return RedirectToAction(nameof(Index));
             }
 
-            var model = new ContactoViewModel
+            var model = new ContactSocialViewModel
             {
                 ContactoId = contactoExistente.ContactoId,
-                NombreCompleto = contactoExistente.Nombre,
+                Nombre = contactoExistente.Nombre,
+                PrimerApellido = contactoExistente.PrimerApellido,
+                SegundoApellido = contactoExistente.SegundoApellido,
                 Telefono = contactoExistente.Telefono,
                 FechaNacimiento = contactoExistente.FechaNacimiento,
-                Edad = _miAgendaInfrastructure.CalcularEdad(contactoExistente.FechaNacimiento),
                 FotoRuta = contactoExistente.FotoRuta,
                 UsuarioId = contactoExistente.UsuarioId,
 
-                Instagram = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 1)?.URL,
-                Facebook = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 2)?.URL,
-                Twitter = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 3)?.URL
+                Instagram = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 1)?.NombreUsuarioRed,
+                Facebook = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 2)?.NombreUsuarioRed,
+                Twitter = contactoExistente.Detalle?.FirstOrDefault(d => d.TipoContactoId == 3)?.NombreUsuarioRed
             };
 
-            return View(model);
+            return View("Update", model);
         }
         catch (Exception ex)
         {
@@ -183,7 +192,7 @@ public class ContactsController : BaseController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Update(int contactoId, ContactoViewModel model)
+    public async Task<IActionResult> Update(int contactoId, ContactSocialViewModel model)
     {
         if (contactoId != model.ContactoId)
             return NotFound();
@@ -200,7 +209,7 @@ public class ContactsController : BaseController
                 return RedirectToAction("Login", "Account");
             }
 
-            string nuevaFotoRuta = model.FotoRuta;
+            string? fotoRuta = model.FotoRuta;
 
             if (model.FotoPerfil != null && model.FotoPerfil.Length > 0 )
             {
@@ -209,22 +218,24 @@ public class ContactsController : BaseController
                     await _FileStorage.DeleteFileAsync(model.FotoRuta);
                 }
 
-                nuevaFotoRuta = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
+                fotoRuta = await _FileStorage.SaveFileAsync(model.FotoPerfil, "contactos");
             }
 
-            var dto  = new ActualizarContactoDto
+            var dto = new ActualizarContactoDto
             {
                 ContactoId = model.ContactoId,
-                NombreCompleto = model.NombreCompleto,
+                Nombre = model.Nombre,
+                PrimerApellido = model.PrimerApellido,
+                SegundoApellido = model.SegundoApellido,
                 Telefono = model.Telefono,
                 FechaNacimiento = model.FechaNacimiento,
-                FotoRuta = nuevaFotoRuta,
+                FotoRuta = fotoRuta,
                 Instagram = model.Instagram,
                 Facebook = model.Facebook,
                 Twitter = model.Twitter
             };
 
-            var updateResult = await _miAgendaInfrastructure.UpdateContactAsync(dto, usuarioId);
+            await _miAgendaInfrastructure.UpdateContactAsync(dto, usuarioId);
 
             TempData["SuccessMessage"] = "Contacto actualizado exitosamente.";
             return RedirectToAction(nameof(Index));
@@ -255,7 +266,6 @@ public class ContactsController : BaseController
         }
     }
 
-
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int contactoId)
@@ -270,7 +280,8 @@ public class ContactsController : BaseController
             }
 
             var contacto = await _miAgendaInfrastructure.GetContactByIdAsync(contactoId);
-            if (contacto == null && contacto.UsuarioId == usuarioId)
+
+            if (contacto != null && contacto.UsuarioId == usuarioId)
             {
                 if (!string.IsNullOrEmpty(contacto.FotoRuta))
                 {
