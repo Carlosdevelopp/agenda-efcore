@@ -3,6 +3,7 @@ using DataAccess.Models.Tables;
 using Infrastructure.Contract;
 using Infrastructure.DTOs;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
@@ -16,14 +17,17 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     private readonly IEmailService _emailService;
     private readonly ILogger<MiAgendaInfrastructure> _logger;
     private readonly IRedSocialHelper _redSocialHelper;
-
-    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess,IPasswordHasher passwordHasher,IEmailService emailService,ILogger<MiAgendaInfrastructure> logger, IRedSocialHelper redSocialHelper)
+    private readonly ILocalFileStorageService _localFileStorage;
+    
+    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess,IPasswordHasher passwordHasher,IEmailService emailService,ILogger<MiAgendaInfrastructure> logger, 
+                                  IRedSocialHelper redSocialHelper, ILocalFileStorageService localFileStorage)
     {
         _miAgendaDataAccess = miAgendaDataAccess;
         _passwordHasher = passwordHasher;
         _emailService = emailService;
         _logger = logger;
         _redSocialHelper = redSocialHelper;
+        _localFileStorage = localFileStorage;
     }
 
     #region Usuario
@@ -36,24 +40,46 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         // verificar contraseña
         return _passwordHasher.Verify(usuario.Password, password) ? usuario : null;
     }
-
-    public async Task<(bool Success, string Message)> RegisterUserAsync(Usuario model)
+    public async Task<(bool Success, string Message)> RegisterUserAsync(RegisterUserDTO model)
     {
+        string? rutaFoto = null;
 
-        bool existe = await _miAgendaDataAccess.ExistsUserAsync(model.Correo, model.NombreUsuario);
+        try
+        {
+            if (model.FotoUsuario != null)
+            {
+                rutaFoto = await _localFileStorage.SaveFileAsync(model.FotoUsuario, "usuarios");
+            }
 
-        if (existe)
-            return (false, "Ël correo o nombre de usuario ya está registrado.");
+            var usuario = new Usuario
+            {
+                Nombre = model.Nombre,
+                PrimerApellido = model.PrimerApellido,
+                SegundoApellido = model.SegundoApellido,
+                Correo = model.Correo,
+                NombreUsuario = model.NombreUsuario,
+                Password = _passwordHasher.Hash(model.Password),
+                Telefono = model.Telefono,
+                RutaFoto = rutaFoto,
+                FechaRegistro = DateTime.UtcNow,
+                FechaAceptacionTerminos = DateTime.UtcNow,
+                Estado = true
+            };
 
-        string passwordHash = _passwordHasher.Hash(model.Password);
+            await _miAgendaDataAccess.RegisterUserAsync(usuario);
 
-        model.Password = passwordHash;
-        model.FechaRegistro = DateTime.Now;
-        model.Estado = true;
+            return (true, "Usuario registrado correctamente.");
+        }
+        catch (DbUpdateException ex)
+        {
+            if (!string.IsNullOrWhiteSpace(rutaFoto))
+                await _localFileStorage.DeleteFileAsync(rutaFoto);
 
-        await _miAgendaDataAccess.RegisterUserAsync(model);
+            if (ex.InnerException?.Message.Contains("UNIQUE") == true)
+                return (false, "El correo o nombre de usuario ya está registrado.");
 
-        return (true, "Usuario registrado correctamente.");
+            throw;
+        }
     }
 
     public async Task<(bool Success, string Message)> ResetPasswordAsync(string rawToken, string newPassword)

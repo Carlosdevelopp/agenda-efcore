@@ -1,7 +1,6 @@
-﻿using Agenda.EFCore.Models.ViewModels;
-using DataAccess.Models.Tables;
+using Agenda.EFCore.Models.ViewModels;
 using Infrastructure.Contract;
-using Infrastructure.Implementation.Security;
+using Infrastructure.DTOs;
 using MiAgendaEF.Models.ViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -137,48 +136,40 @@ public class AccountController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(RegisterViewModel model)
+    public async Task<IActionResult> Register(RegisterViewModel model){
+    if (!ModelState.IsValid) return View(model);
+
+    try
     {
-        if (!ModelState.IsValid) return View(model);
 
-        try
+        var usuarioDto = new RegisterUserDTO
         {
-            string? rutaFoto = null;
-            if (model.FotoUsuario != null && model.FotoUsuario.Length > 0)
-            {
-                rutaFoto = await _localFileStorageService.SaveFileAsync(model.FotoUsuario, "usuarios");
-            }
+            Nombre = model.Nombre,
+            PrimerApellido = model.PrimerApellido,
+            SegundoApellido = model.SegundoApellido,
+            Correo = model.Correo,
+            NombreUsuario = model.NombreUsuario,
+            Password = model.Password,
+            Telefono = model.Telefono,
+            FotoUsuario = model.FotoUsuario,
+        };
 
-            var usuario = new Usuario
-            {
-                Nombre = model.Nombre,
-                PrimerApellido = model.PrimerApellido,
-                SegundoApellido = model.SegundoApellido,
-                Correo = model.Correo,
-                NombreUsuario = model.NombreUsuario,
-                Password = model.Password,
-                RutaFoto = rutaFoto,
-                Telefono = model.Telefono,
-                Estado = true,
-                FechaAceptacionTerminos = DateTime.Now
-            };
+        var result = await _miAgendaInfrastructure.RegisterUserAsync(usuarioDto);
 
-            var result = await _miAgendaInfrastructure.RegisterUserAsync(usuario);
-
-            if (!result.Success)
-            {
-                ModelState.AddModelError("", result.Message);
-                return View(model);
-            }
-
-            TempData["SuccessMessage"] = "Registro exitoso. Inicia sesión.";
-            return RedirectToAction(nameof(Login));
-        }
-        catch (Exception)
+        if (!result.Success)
         {
-            ModelState.AddModelError("", "Ocurrio un error al registrar el usuario.");
+            ModelState.AddModelError("", result.Message);
             return View(model);
         }
+
+        TempData["SuccessMessage"] = "Registro exitoso. Inicia sesión.";
+        return RedirectToAction(nameof(Login));
+    }
+    catch (Exception)
+    {
+        ModelState.AddModelError("", "Ocurrio un error al registrar el usuario.");
+        return View(model);
+    }
     }
 
     [HttpPost]

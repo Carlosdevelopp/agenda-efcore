@@ -55,7 +55,6 @@ public class RegisterViewModel
     [DataType(DataType.PhoneNumber)]
     public string Telefono { get; set; } = null!;
 
-    // - Archivo Subido -
     // Usar IFormFile para recibir el archivo binario
     [Display(Name = "FotoUsuario")]
     public IFormFile? FotoUsuario { get; set; }

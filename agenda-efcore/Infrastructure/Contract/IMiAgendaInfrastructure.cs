@@ -11,7 +11,7 @@ public interface IMiAgendaInfrastructure
     #endregion
 
     #region POST
-    Task<(bool Success, string Message)> RegisterUserAsync(Usuario model);
+    Task<(bool Success, string Message)> RegisterUserAsync(RegisterUserDTO model);
     #endregion
 
     #region UPDATE
@@ -27,7 +27,6 @@ public interface IMiAgendaInfrastructure
     Task<Contacto> CreateContactAsync(CrearContactoDto dto, int usuarioId);
 
     Task<Contacto> UpdateContactAsync(ActualizarContactoDto dto, int usuarioId);
- 
 
      Task<bool> DeleteContactAsync(int contactoId, int usuarioId);
 }
