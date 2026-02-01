@@ -7,5 +7,6 @@ public class AgendaViewModel
     public string? TerminoBusqueda { get; set; } = null!;
 
     //Lista de ViewModels
-    public List<ContactoViewModel> Contactos { get; set; } = new List<ContactoViewModel>();
+    public virtual List<ContactoViewModel> Contactos { get; set; } = new List<ContactoViewModel>();
+
 }

@@ -1,5 +1,4 @@
 ﻿using Agenda.EFCore.Models.ViewModels;
-using DataAccess.Models.Tables;
 using Infrastructure.Contract;
 using Infrastructure.DTOs;
 using MiAgendaEF.Models.ViewModels;
@@ -16,7 +15,7 @@ public class AccountController : Controller
     private readonly IMiAgendaInfrastructure _miAgendaInfrastructure;
     private readonly ILogger<AccountController> _logger;
 
-    public AccountController(IMiAgendaInfrastructure miAgendaInfrastructure, ILogger<AccountController> logger)
+    public AccountController(IMiAgendaInfrastructure miAgendaInfrastructure, ILogger<AccountController> logger, ILocalFileStorageService localFileStorageService)
     {
         _miAgendaInfrastructure = miAgendaInfrastructure;
         _logger = logger;
@@ -141,7 +140,8 @@ public class AccountController : Controller
 
         try
         {
-            var dto = new RegisterUserDTO
+
+            var usuarioDto = new RegisterUserDTO
             {
                 Nombre = model.Nombre,
                 PrimerApellido = model.PrimerApellido,
@@ -150,10 +150,10 @@ public class AccountController : Controller
                 NombreUsuario = model.NombreUsuario,
                 Password = model.Password,
                 Telefono = model.Telefono,
-                FotoUsuario = model.FotoUsuario
+                FotoUsuario = model.FotoUsuario,
             };
 
-            var result = await _miAgendaInfrastructure.RegisterUserAsync(dto);
+            var result = await _miAgendaInfrastructure.RegisterUserAsync(usuarioDto);
 
             if (!result.Success)
             {

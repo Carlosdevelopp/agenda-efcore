@@ -1,5 +1,5 @@
 ﻿@using MiAgendaEF.Models.ViewModels
-@model ContactSocialViewModel
+@model ContactSocialViewModel;
 @{
     Layout = null;
 }
@@ -7,9 +7,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Formulario crear nuevo contacto</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <title>Editar Contacto</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -21,25 +21,36 @@
                 <div class="auth-card-pro">
                     <div class="text-center mb-4">
 
-                        <!-- Preview de la foto -->
-                        <div id="fotoPreviewContainer" class="foto-placeholder">
-                            <i class="bi bi-person-circle" style="font-size: 3rem; color: rgba(255,255,255,0.3);"></i>
-                        </div>
-                        
-                        <h2 class="fw-bold text-white mb-1">Registro</h2>
-                        <p class="text-light-custom small">Crea un nuevo perfil administrativo</p>
+                        @if (!string.IsNullOrEmpty(Model.FotoRuta))
+                        {
+                            <div id="fotoPreviewContainer" class="text-center mb-3">
+                                <img src="@Model.FotoRuta" alt="Foto actual" class="foto-preview"
+                                     style="width: 150px; height: 150px; border-radius: 50%; -o-object-fit: cover;" />
+                                <p class="text-light-custom smalll">Foto actual</p>
+                            </div>
+                        }else
+                        {
+                            <div class="mb-3">
+                                <i class="bi bi-person-circle text-info" style="font-size: 3rem;"></i>
+                                <p class="text-muted small">Actualiza la información del contacto</p>
+                            </div>
+                        }
                     </div>
 
-                    <form asp-controller="Contacts" asp-action="Create" method="post" enctype="multipart/form-data">
+                    <form asp-controller="Contacts" asp-action="Update" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="ContactoId"/>
+                        <input type="hidden" asp-for="UsuarioId"/>
+                        <input type="hidden" asp-for="FotoRuta" />
+
                         <div asp-validation-summary="ModelOnly" class="text-danger small mb-4 text-center"></div>
 
-                        <!-- Campo para cargar foto -->
                         <div class="mb-3">
                             <label asp-for="FotoPerfil" class="label-pro">
-                                <i class="fas fa-camera me-2"></i>Foto de Perfil
+                                <i class="fas fa-camera me-2"></i>Cambiar Foto 
                             </label>
-                            <input  asp-for="FotoPerfil" type="file" class="input-field-pro w-100" id="foto" name="FotoPerfil" accept="image/*">
-                            <small class="text-light-custom" style="font-size: 0.75rem;">Formatos: JPG, PNG, GIF</small>
+                            <input asp-for="FotoPerfil" type="file" class="input-field-pro w-100" accept="image/*" id="foto">
+                            <small class="text-light-custom" style="font-size: 0.75rem;">Deja vacío para mantener la foto actual</small>
+                            <span asp-validation-for="FotoPerfil" class="text-danger small"></span>
                         </div>
 
                         <div class="mb-4">
@@ -61,19 +72,19 @@
                             </div>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label asp-for="FechaNacimiento" class="label-pro">Fecha de Nacimiento</label>
                             <input asp-for="FechaNacimiento" type="date" class="input-field-pro w-100" style="color-scheme: dark;">
                             <span asp-validation-for="FechaNacimiento" class="text-danger small"></span>
                         </div>
 
-                        <!-- Campo de Teléfono -->
                         <div class="mb-4">
-                            <label for="Telefono" class="label-pro">
+                            <label asp-for="Telefono" class="label-pro">
                                 <i class="fas fa-phone me-2"></i>Teléfono
                             </label>
-                            <input type="tel" id="Telefono" name="Telefono" class="input-field-pro w-100" placeholder="Ej: 5512345678" pattern="[0-9]{10}" maxlength="10">
+                            <input asp-for="Telefono" type="tel" class="input-field-pro w-100" placeholder="Ej: 5512345678" pattern="[0-9]{10}" maxlength="10">
                             <small class="text-light-custom" style="font-size: 0.75rem;">10 dígitos sin espacios</small>
+                            <span asp-validation-for="Telefono" class="text-danger small"></span>
                         </div>
 
                         <!-- Sección de Redes Sociales -->
@@ -95,36 +106,46 @@
                                 </div>
                             </div>
 
+                            <!-- Input para Instagram -->
                             <div id="input-instagram" class="social-input-container">
                                 <div class="social-label label-pro">
                                     <i class="fab fa-instagram" style="color: #e1306c;"></i>
-                                    <span>Instagram</span>
+                                    <label asp-for="Instagram">Instagram</label>
                                 </div>
-                                <input type="text" name="Instagram" id="Instagram" class="input-field-pro w-100" placeholder="Usuario">
+
+                                <input asp-for="Instagram" class="input-field-pro w-100" placeholder="Usuario"/>
                                 <small class="text-light-custom" style="font-size: 0.75rem;">Nombre de usuario</small>
+                                <span asp-validation-for="Instagram" class="text-danger"></span>
                             </div>
 
+                            <!-- Input para Facebook -->
                             <div id="input-facebook" class="social-input-container">
                                 <div class="social-label label-pro">
                                     <i class="fab fa-facebook-f" style="color: #1877f2;"></i>
-                                    <span>Facebook</span>
+                                    <label asp-for="Facebook">Facebook</label>
                                 </div>
-                                <input type="text" name="Facebook" id="Facebook" class="input-field-pro w-100" placeholder="Usuario">
-                                <small class="text-light-custom" style="font-size: 0.75rem;">Nombre de usuario</small>
-                            </div>
 
+                                <input asp-for="Facebook" class="input-field-pro w-100" placeholder="Usuario">
+                                <small class="text-light-custom" style="font-size: 0.75rem;">Nombre de usuario</small>
+                                <span asp-validation-for="Facebook" class="text-danger"></span>
+                            </div>
+                            
+                            <!-- Input para Twitter -->
                             <div id="input-twitter" class="social-input-container">
                                 <div class="social-label label-pro">
                                     <i class="fab fa-twitter" style="color: #1da1f2;"></i>
-                                    <span>Twitter</span>
+                                    <label asp-for="Twitter">Twitter</label>
                                 </div>
-                                <input type="text" name="Twitter" id="Twitter" class="input-field-pro w-100" placeholder="Usuario">
+
+                                <input asp-for="Twitter" class="input-field-pro w-100" placeholder="Usuario" />
                                 <small class="text-light-custom" style="font-size: 0.75rem;">Nombre de usuario</small>
+                                <span asp-validation-for="Twitter" class="text-danger"></span>
                             </div>
+
                         </div>
 
                         <div class="d-grid mt-5">
-                            <button type="submit" class="btn-search-neon py-3 fw-bold">CONFIRMAR REGISTRO</button>
+                            <button type="submit" class="btn-search-neon py-3 fw-bold">Guardar cambios</button>
                             <a asp-action="Index" class="btn-cancel py-3 fw-bold">Cancelar</a>
                         </div>
 

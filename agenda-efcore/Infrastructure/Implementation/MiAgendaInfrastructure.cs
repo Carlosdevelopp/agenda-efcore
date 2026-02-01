@@ -19,8 +19,8 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
     private readonly IRedSocialHelper _redSocialHelper;
     private readonly ILocalFileStorageService _localFileStorage;
 
-    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess,IPasswordHasher passwordHasher,IEmailService emailService, 
-                                  ILogger<MiAgendaInfrastructure> logger, IRedSocialHelper redSocialHelper, ILocalFileStorageService localFileStorage)
+    public MiAgendaInfrastructure(IMiAgendaDataAccess miAgendaDataAccess,IPasswordHasher passwordHasher,IEmailService emailService,ILogger<MiAgendaInfrastructure> logger, 
+                                  IRedSocialHelper redSocialHelper, ILocalFileStorageService localFileStorage)
     {
         _miAgendaDataAccess = miAgendaDataAccess;
         _passwordHasher = passwordHasher;
@@ -67,7 +67,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
                 Estado = true
             };
 
-            await _miAgendaDataAccess.RegisterAsync(usuario);
+            await _miAgendaDataAccess.RegisterUserAsync(usuario);
 
             return (true, "Usuario registrado correctamente.");
         }
@@ -77,7 +77,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
                 await _localFileStorage.DeleteFileAsync(rutaFoto);
 
             if (ex.InnerException?.Message.Contains("UNIQUE") == true)
-                return (false, "El correo o nombre de usuariio ya está registrado.");
+                return (false, "El correo o nombre de usuario ya está registrado.");
 
             throw;
         }
@@ -172,7 +172,9 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         // Crear entidad
         var nuevoContacto = new Contacto
         {
-            Nombre = dto.NombreCompleto,
+            Nombre = dto.Nombre,
+            PrimerApellido = dto.PrimerApellido,
+            SegundoApellido = dto.SegundoApellido,
             FechaNacimiento = dto.FechaNacimiento,
             Telefono = dto.Telefono,
             FotoRuta = dto.FotoRuta, 
@@ -182,6 +184,18 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         };
 
         AgregarRedesSociales(nuevoContacto, dto.Instagram, dto.Facebook, dto.Twitter);
+
+        if (nuevoContacto.Detalle.Any())
+        {
+            foreach (var d in nuevoContacto.Detalle)
+            {
+                Console.WriteLine($"  Red: TipoContactoId={d.TipoContactoId}, URL={d.URL}, ContactoId={d.ContactoId}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("NO SE AGREGARON REDES SOCIALES");
+        }
 
         var resultado = await _miAgendaDataAccess.CreateContactAsync(nuevoContacto);
 
@@ -203,9 +217,9 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
             {
                 contacto.Detalle.Add(new DetalleContactoRed
                 {
-                    ContactoId = contacto.ContactoId,
                     TipoContactoId = 1,
                     URL = url,
+                    NombreUsuarioRed = _redSocialHelper.ExtraerUserName(url)!,
                     FechaRegistro = DateTime.Now
                 });
             }
@@ -218,9 +232,9 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
             {
                 contacto.Detalle.Add(new DetalleContactoRed
                 {
-                    ContactoId = contacto.ContactoId,
                     TipoContactoId = 2,
                     URL = url,
+                    NombreUsuarioRed =  _redSocialHelper.ExtraerUserName(url)!, 
                     FechaRegistro = DateTime.Now
                 });
             }
@@ -233,9 +247,9 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
             {
                 contacto.Detalle.Add(new DetalleContactoRed
                 {
-                    ContactoId = contacto.ContactoId,
                     TipoContactoId = 3,
                     URL = url,
+                    NombreUsuarioRed = _redSocialHelper.ExtraerUserName(url)!,
                     FechaRegistro = DateTime.Now
                 });
             }
@@ -252,7 +266,9 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         if (contactoExistente.UsuarioId != usuarioId)
             throw new UnauthorizedAccessException("No tienes permiso para editar este contacto");
 
-        contactoExistente.Nombre = dto.NombreCompleto;
+        contactoExistente.Nombre = dto.Nombre;
+        contactoExistente.PrimerApellido = dto.PrimerApellido;
+        contactoExistente.SegundoApellido = dto.SegundoApellido;
         contactoExistente.Telefono = dto.Telefono;
         contactoExistente.FechaNacimiento = dto.FechaNacimiento;
 

@@ -1,23 +1,225 @@
-/* --- VARIABLES --- */
 :root {
     --glass-bg: rgba(255, 255, 255, 0.05);
     --glass-border: rgba(255, 255, 255, 0.1);
     --accent-cyan: #00d2ff;
     --accent-gold: #ffcc00; /* Mantenemos el oro por se usa la tarjeta de cumpleañero */
     --accent-red: #ff4757;
+    --accent-green: #4caf50;
     --text-white: #ffffff;
+    --text-muted-light: #94a3b8;
+    --shadow-glow-primary: 0 10px 25px rgba(102, 126, 234, 0.4);
+    --avatar-sm: 42px;
+    --avatar-md: 120px;
+    --avatar-lg: 140px;
+    --icon-md: 40px;
 }
 
-/* --- BASE --- */
+.register-page {
+    --register-primary: #667eea;
+    --register-secondary: #764ba2;
+    --register-gradient: linear-gradient( 135deg, var(--register-primary) 0%, var(--register-secondary) 100% );
+    --register-panel-bg: #ffffff;
+    --register-shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
+    --register-focus-ring: rgba(102, 126, 234, 0.15);
+    --register-border-radius: 12px;
+    background: var(--register-gradient);
+    min-height: 100vh;
+    animation: fadeInRegister 0.6s ease both;
+}
+
+@keyframes fadeInRegister {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Panel izquierdo */
+.register-page .left-panel {
+    background: linear-gradient(rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1506784365847-bbad939e9335?auto=format&fit=crop&w=1200&q=80');
+    background-size: cover;
+    background-position: center;
+}
+
+/* Panel del formulario */
+.register-page .form-panel {
+    background: var(--register-panel-bg);
+    box-shadow: var(--register-shadow-lg);
+}
+
+
+/* Foto perfil*/
+.register-page .foto-upload-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.register-page .foto-preview-container {
+    width: var(--avatar-lg);
+    height: var(--avatar-lg);
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid var(--register-primary);
+    background: var(--register-gradient);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .register-page .foto-preview-container:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.5);
+    }
+
+    .register-page .foto-preview-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+        display: block;
+    }
+
+    .register-page .foto-preview-container:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px var(--register-focus-ring);
+    }
+
+.register-page .foto-upload-badge {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: var(--avatar-sm);
+    height: var(--avatar-sm);
+    border-radius: 50%;
+    background: var(--register-primary);
+    color: var(--text-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: 0.3s;
+}
+
+.register-page .foto-upload-wrapper:hover .foto-upload-badge {
+    background: color-mix(in srgb, var(--register-primary), black 15%);
+    transform: scale(1.1);
+}
+
+/* INPUTS (Bootstrap friendly) */
+.register-page .form-control {
+    border-radius: var(--register-border-radius);
+    transition: 0.3s;
+}
+
+    .register-page .form-control:focus {
+        border-color: var(--register-primary);
+        box-shadow: 0 0 0 3px var(--register-focus-ring);
+    }
+
+    .register-page .form-control:hover {
+        border-color: color-mix(in srgb, var(--register-primary), white 20%);
+    }
+
+
+/* Botón principal */
+.register-page .btn-primary {
+    background: var(--register-gradient);
+    border: none;
+    border-radius: var(--register-border-radius);
+    transition: 0.3s;
+}
+
+    .register-page .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-glow-primary);
+    }
+
+    .register-page .btn-primary:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px var(--register-focus-ring);
+    }
+
+
+/* Password strength */
+.register-page .password-strength {
+    height: 4px;
+    background: #e0e0e0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.register-page .password-strength-bar {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+.register-page .strength-weak {
+    width: 33%;
+    background: var(--accent-red);
+}
+
+.register-page .strength-medium {
+    width: 66%;
+    background: var(--accent-gold);
+}
+
+.register-page .strength-strong {
+    width: 100%;
+    background: var(--accent-green);
+}
+
+/* Loading overlay */
+.register-page .loading-overlay {
+    isolation: isolate;
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+    .register-page .loading-overlay.show {
+        display: flex;
+        pointer-events: all;
+    }
+
+.register-page .spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--text-white);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* --- Base --- */
 body {
-    background: radial-gradient(circle at top right, #1e293b, #0f172a, #020617) !important;
+    background: radial-gradient(circle at top right, #1e293b, #0f172a, #020617);
     color: var(--text-white);
     font-family: 'Plus Jakarta Sans', sans-serif;
     min-height: 100vh;
     margin: 0;
 }
 
-/* --- NAVEGACIÓN --- */
+    body:has(.register-page) {
+        background: transparent !important;
+    }
+
+/* --- Navegación --- */
 .glass-nav {
     background: rgba(15, 23, 42, 0.8) !important;
     backdrop-filter: blur(15px);
@@ -46,7 +248,7 @@ body {
     object-fit: cover;
 }
 
-/* --- BOTONES Y BUSCADOR --- */
+/* --- Botones y buscador --- */
 .search-glass-dark {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -56,14 +258,14 @@ body {
     align-items: center;
 }
 
-/* Corregido: Input dentro del buscador para que no herede bordes de Bootstrap */
-.search-glass-dark input {
-    background: transparent;
-    border: none;
-    color: white;
-    outline: none;
-    width: 100%;
-}
+    /* Corregido: Input dentro del buscador para que no herede bordes de Bootstrap */
+    .search-glass-dark input {
+        background: transparent;
+        border: none;
+        color: white;
+        outline: none;
+        width: 100%;
+    }
 
 .btn-search-neon {
     background: var(--accent-cyan);
@@ -76,10 +278,37 @@ body {
     cursor: pointer;
 }
 
-.btn-search-neon:hover {
-    background: #ffffff;
-    box-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
-    transform: translateY(-2px);
+    .btn-search-neon:hover {
+        background: #ffffff;
+        box-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+        transform: translateY(-2px);
+    }
+
+.btn-cancel {
+    /* Propiedades base para que se comporte como un botón */
+    display: inline-block;
+    text-decoration: none; /* Quita el subrayado del enlace */
+    text-align: center;
+    /* Tus estilos originales */
+    background: var(--accent-red);
+    color: #020617;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 25px;
+    font-weight: 800;
+    transition: 0.3s;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+    .btn-cancel:hover {
+        filter: brightness(1.2);
+        box-shadow: 0 0 15px var(--accent-cyan);
+        transform: translateY(-2px);
+    }
+
+.text-light-custom {
+    color: var(--text-muted-light) !important;
 }
 
 .btn-logout-pro {
@@ -94,12 +323,12 @@ body {
     transition: 0.3s;
 }
 
-.btn-logout-pro:hover {
-    background: var(--accent-red);
-    color: white;
-}
+    .btn-logout-pro:hover {
+        background: var(--accent-red);
+        color: white;
+    }
 
-/* --- TARJETA DE FORMULARIO (LOGIN/REGISTRO) --- */
+/* --- Tarjeta de formulario (Login/Registro) --- */
 .auth-card-pro {
     background: rgba(15, 23, 42, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -118,11 +347,11 @@ body {
     width: 100%;
 }
 
-.input-field-pro:focus {
-    border-color: var(--accent-cyan) !important;
-    box-shadow: 0 0 15px rgba(0, 210, 255, 0.2) !important;
-    outline: none;
-}
+    .input-field-pro:focus {
+        border-color: var(--accent-cyan) !important;
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.2) !important;
+        outline: none;
+    }
 
 .label-pro {
     color: var(--accent-cyan);
@@ -135,24 +364,28 @@ body {
 }
 
 /* Evitar el color amarillo/blanco de autocompletado de Google */
-input:-webkit-autofill {
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
     -webkit-text-fill-color: white !important;
     -webkit-box-shadow: 0 0 0px 1000px #0f172a inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: white;
 }
 
 .foto-preview {
-    width: 120px;
-    height: 120px;
+    width: var(--avatar-md);
+    height: var(--avatar-md);
     border-radius: 50%;
-    border: 3px solid #0dcaf0;
+    border: 3px solid var(--accent-cyan);
     object-fit: cover;
     display: block;
     margin: 0 auto 15px;
 }
 
 .foto-placeholder {
-    width: 120px;
-    height: 120px;
+    width: var(--avatar-md);
+    height: var(--avatar-md);
     border-radius: 50%;
     border: 3px dashed rgba(255,255,255,0.3);
     display: flex;
@@ -186,23 +419,21 @@ input:-webkit-autofill {
     border: 3px solid transparent;
 }
 
-.social-icon:hover {
-    transform: scale(1.15);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
+    .social-icon:hover {
+        transform: scale(1.12);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
 
-.social-icon.active {
-    border: 3px solid #fff;
-    box-shadow: 0 0 20px rgba(255,255,255,0.5);
-}
+    .social-icon.active {
+        border: 3px solid #fff;
+        box-shadow: 0 0 20px rgba(255,255,255,0.5);
+    }
 
 .instagram {
     background: radial-gradient(circle at 35% 90%, #fdf497 0%, #fdf497 5%, #fd5949 25%, #d6249f 50%, #285AEB 100%);
     color: white;
     transition: transform 0.3s ease;
-
     box-shadow: 0 4px 15px rgba(214, 36, 159, 0.3);
-    color: white;
     font-weight: bold;
     border: none;
     border-radius: 50px;
@@ -214,7 +445,7 @@ input:-webkit-autofill {
 }
 
     .instagram:hover {
-        transform: scale(1.05);  Efecto de pulso al pasar el mouse 
+        transform: scale(1.05);
     }
 
 .facebook {

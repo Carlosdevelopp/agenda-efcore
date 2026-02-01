@@ -9,5 +9,6 @@ public class DetalleContactoRed
     public string NombreUsuarioRed { get; set; } = null!;
     public DateTime FechaRegistro { get; set; }
 
-    public virtual Contacto Contacto { get; set; } = null!;
+    public virtual Contacto? Contacto { get; set; }
+    public virtual TipoContacto TipoContacto { get; set; }
 }

@@ -34,7 +34,7 @@ public class RedSocialHelper : IRedSocialHelper
         };
     }
 
-    public static int ObtenerTipoRedSocialId(string  tipoRedSocial)
+    public int ObtenerTipoRedSocialId(string  tipoRedSocial)
     {
         return tipoRedSocial.ToLower() switch
         {
@@ -45,7 +45,7 @@ public class RedSocialHelper : IRedSocialHelper
         };
     }
 
-    public static string? ExtraerUsername(string url)
+    public string? ExtraerUserName(string url)
     {
         if (string.IsNullOrWhiteSpace(url))
             return null;
@@ -58,7 +58,7 @@ public class RedSocialHelper : IRedSocialHelper
         return segments.Length > 0 ? segments[0] : null;
     }
 
-    private static bool EsUsernameValido(string username)
+    public bool EsUsernameValido(string username)
     {
         if (string.IsNullOrWhiteSpace(username))
             return false;
@@ -66,7 +66,7 @@ public class RedSocialHelper : IRedSocialHelper
         return System.Text.RegularExpressions.Regex.IsMatch(username, @"^[a-zA-Z0-9_.]+$") && username.Length >= 1 && username.Length <= 30;
     }
 
-    private static string ValidarYNormalizarUrl(string url,string tipoRedSocial)
+    public string ValidarYNormalizarUrl(string url,string tipoRedSocial)
     {
         try
         {
@@ -86,7 +86,7 @@ public class RedSocialHelper : IRedSocialHelper
         }
     }  
 
-    private static string[] ObtenerDominiosValidos(string tipoRedSocial)
+    public string[] ObtenerDominiosValidos(string tipoRedSocial)
     {
         return tipoRedSocial.ToLower() switch
         {
