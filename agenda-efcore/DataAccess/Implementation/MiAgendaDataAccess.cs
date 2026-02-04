@@ -1,6 +1,7 @@
 ﻿using DataAccess.Contract;
 using DataAccess.Implementation.Base;
 using DataAccess.Models.Tables;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Implementation;
@@ -20,11 +21,6 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
         return await _applicationDbContext.Usuarios.FirstOrDefaultAsync(u => u.Correo == credencial || u.NombreUsuario == credencial);
     }
 
-    public async Task<bool> ExistsUserAsync(string correo, string nombreUsuario)
-    {
-        return await _applicationDbContext.Usuarios.AnyAsync(u => u.NombreUsuario == correo || u.Correo == correo);
-    }
-
     public async Task<Usuario?> GetUserByIdAsync(int usuarioId)
     {
         return await _applicationDbContext.Usuarios.FirstOrDefaultAsync(u => u.UsuarioId == usuarioId);
@@ -32,9 +28,9 @@ public class MiAgendaDataAccess : IMiAgendaDataAccess
 
     public async Task<Usuario> RegisterUserAsync(Usuario usuario)
     {
-        _applicationDbContext.Usuarios.Add(usuario);
-        await _applicationDbContext.SaveChangesAsync();
-        return usuario;
+            _applicationDbContext.Usuarios.Add(usuario);
+            await _applicationDbContext.SaveChangesAsync();
+            return usuario;
     }
 
     public async Task UpdatePasswordAsync(int usuarioId, string PasswordHash)

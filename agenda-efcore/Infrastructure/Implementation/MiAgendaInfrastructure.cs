@@ -3,6 +3,7 @@ using DataAccess.Models.Tables;
 using Infrastructure.Contract;
 using Infrastructure.DTOs;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
@@ -40,6 +41,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         // verificar contraseña
         return _passwordHasher.Verify(usuario.Password, password) ? usuario : null;
     }
+
     public async Task<(bool Success, string Message)> RegisterUserAsync(RegisterUserDTO model)
     {
         string? rutaFoto = null;
@@ -62,6 +64,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
                 Telefono = model.Telefono,
                 RutaFoto = rutaFoto,
                 FechaRegistro = DateTime.UtcNow,
+                UltimoAcceso = DateTime.UtcNow,
                 FechaAceptacionTerminos = DateTime.UtcNow,
                 Estado = true
             };
@@ -70,15 +73,28 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
 
             return (true, "Usuario registrado correctamente.");
         }
-        catch (DbUpdateException ex)
+        catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx)
         {
             if (!string.IsNullOrWhiteSpace(rutaFoto))
                 await _localFileStorage.DeleteFileAsync(rutaFoto);
 
-            if (ex.InnerException?.Message.Contains("UNIQUE") == true)
-                return (false, "El correo o nombre de usuario ya está registrado.");
+            if (sqlEx.Message.Contains("UNIQUE", StringComparison.OrdinalIgnoreCase))
+            {
+                var mensaje = sqlEx.Message.ToLower();
 
-            throw;
+                if (mensaje.Contains("correo"))
+                    return (false, "El correo ya está registrado.");
+
+                if (mensaje.Contains("nombreusuario"))
+                    return (false, "El nombre de usuario ya existe.");
+
+                if (mensaje.Contains("telefono"))
+                    return (false, "El teléfono ya está registrado.");
+
+                return (false, "Ya existe un registro con estos datos.");
+            }
+
+            return (false, "Error al guardar en la base de datos.");
         }
     }
 

@@ -14,13 +14,11 @@ public class AccountController : Controller
 {
     private readonly IMiAgendaInfrastructure _miAgendaInfrastructure;
     private readonly ILogger<AccountController> _logger;
-    private readonly ILocalFileStorageService _localFileStorageService;
 
     public AccountController(IMiAgendaInfrastructure miAgendaInfrastructure, ILogger<AccountController> logger, ILocalFileStorageService localFileStorageService)
     {
         _miAgendaInfrastructure = miAgendaInfrastructure;
         _logger = logger;
-        _localFileStorageService = localFileStorageService;
     }
 
     public IActionResult Index()
@@ -136,40 +134,40 @@ public class AccountController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(RegisterViewModel model){
+    public async Task<IActionResult> Register(RegisterViewModel model)
+    {
+
     if (!ModelState.IsValid) return View(model);
 
-    try
-    {
-
-        var usuarioDto = new RegisterUserDTO
+        try
         {
-            Nombre = model.Nombre,
-            PrimerApellido = model.PrimerApellido,
-            SegundoApellido = model.SegundoApellido,
-            Correo = model.Correo,
-            NombreUsuario = model.NombreUsuario,
-            Password = model.Password,
-            Telefono = model.Telefono,
-            FotoUsuario = model.FotoUsuario,
-        };
+            var usuarioDto = new RegisterUserDTO
+            {
+                Nombre = model.Nombre,
+                PrimerApellido = model.PrimerApellido,
+                SegundoApellido = model.SegundoApellido,
+                Correo = model.Correo,
+                NombreUsuario = model.NombreUsuario,
+                Password = model.Password,
+                Telefono = model.Telefono,
+                FotoUsuario = model.FotoUsuario,
+            };
 
-        var result = await _miAgendaInfrastructure.RegisterUserAsync(usuarioDto);
+            var result = await _miAgendaInfrastructure.RegisterUserAsync(usuarioDto);
 
-        if (!result.Success)
-        {
-            ModelState.AddModelError("", result.Message);
-            return View(model);
+            if (!result.Success)
+            {
+                ModelState.AddModelError("", result.Message);
+                return View(model);
+            }
+
+            TempData["SuccessMessage"] = "Registro exitoso. Inicia sesión.";
+            return RedirectToAction(nameof(Login));
         }
-
-        TempData["SuccessMessage"] = "Registro exitoso. Inicia sesión.";
-        return RedirectToAction(nameof(Login));
-    }
-    catch (Exception)
-    {
-        ModelState.AddModelError("", "Ocurrio un error al registrar el usuario.");
-        return View(model);
-    }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { mensaje = ex.Message});
+        }
     }
 
     [HttpPost]

@@ -20,6 +20,10 @@ public class ApplicationDbContext : DbContext
         {
             entity.ToTable("Usuarios");
             entity.HasKey(e => e.UsuarioId);
+
+            entity.HasIndex(u => u.Telefono).IsUnique().HasDatabaseName("UQ_UsuariosTelefono");
+            entity.HasIndex(u => u.Correo).IsUnique().HasDatabaseName("UQ_Correo");
+            entity.HasIndex(u => u.NombreUsuario).IsUnique().HasDatabaseName("UQ_NombreUsuario");
         });
 
         modelBuilder.Entity<Contacto>(entity =>
@@ -28,7 +32,7 @@ public class ApplicationDbContext : DbContext
             entity.HasKey(e => e.ContactoId);
 
             entity.Property(c => c.ContactoId)
-              .ValueGeneratedOnAdd(); // Esto es crucial
+              .ValueGeneratedOnAdd(); 
 
             entity.Property(c => c.Nombre)
                   .IsRequired()
@@ -37,6 +41,8 @@ public class ApplicationDbContext : DbContext
             entity.Property(c => c.Telefono)
                   .IsRequired()
                   .HasMaxLength(20);
+
+            entity.HasIndex(u => u.Telefono).IsUnique().HasDatabaseName("UQ_ContactosTelefono");
         });
 
         modelBuilder.Entity<DetalleContactoRed>(entity =>
@@ -45,7 +51,6 @@ public class ApplicationDbContext : DbContext
 
             entity.HasKey(d => d.DetContactoRedId);
 
-            // IMPORTANTE: También IDENTITY
             entity.Property(d => d.DetContactoRedId)
                   .ValueGeneratedOnAdd();
 
