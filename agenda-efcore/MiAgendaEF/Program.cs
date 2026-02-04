@@ -13,7 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MI_AGENDA_CONNECTION")));
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("MI_AGENDA_CONNECTION"), 
+    b => b.MigrationsAssembly("DataAccess")));
 
 builder.Services.AddScoped<IMiAgendaInfrastructure, MiAgendaInfrastructure>();
 builder.Services.AddScoped<IMiAgendaDataAccess, MiAgendaDataAccess>();

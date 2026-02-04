@@ -13,5 +13,4 @@ public class RegisterUserDTO
     public string Telefono { get; set; }
 
     public IFormFile? FotoUsuario { get; set; }
-    public string? FotoNombre { get; set; }
 }

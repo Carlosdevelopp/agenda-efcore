@@ -7,8 +7,6 @@ public interface IMiAgendaDataAccess
 {
     Task<Usuario?> GetUserByCredentialAsync(string credencial);
 
-    Task<bool> ExistsUserAsync(string correo, string nombreeUsuario);
-
     Task<Usuario> RegisterUserAsync(Usuario usuario);
 
     Task<Usuario?> GetUserByIdAsync(int usuarioId);

@@ -1,6 +1,7 @@
 ﻿using Infrastructure.Contract;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace Infrastructure.Services;
 
@@ -14,7 +15,6 @@ public class LocalFileStorageService : ILocalFileStorageService
       _environment = environment;
       _logger = logger;
   }
-}
 
     public async Task<string?> SaveFileAsync(IFormFile file, string folder)
     {
