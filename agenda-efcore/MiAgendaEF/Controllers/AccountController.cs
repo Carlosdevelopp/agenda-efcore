@@ -79,6 +79,7 @@ public class AccountController : Controller
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.UsuarioId.ToString()),
                 new Claim(ClaimTypes.Name, usuario.NombreUsuario),
+                new Claim("FotoPerfil", usuario.RutaFoto ?? ""),
                 //Claim personalizado
                 new Claim("FullName", usuario.NombreUsuario)
             };
