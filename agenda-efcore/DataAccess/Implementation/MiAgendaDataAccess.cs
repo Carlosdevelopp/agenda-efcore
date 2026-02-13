@@ -1,7 +1,6 @@
 ﻿using DataAccess.Contract;
 using DataAccess.Implementation.Base;
 using DataAccess.Models.Tables;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataAccess.Implementation;

@@ -15,7 +15,7 @@ public class ContactSocialViewModel
     public string PrimerApellido { get; set; } = null!;
 
     [Display(Name = "Apellido Materno")]
-    public string? SegundoApellido { get; set; } = null!;
+    public string? SegundoApellido { get; set; } 
 
     [Required(ErrorMessage = "La Fecha de Nacimiento es obligatoria.")]
     [Display(Name = "Fecha de Nacimiento")]

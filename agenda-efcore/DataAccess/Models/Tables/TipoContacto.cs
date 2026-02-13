@@ -6,5 +6,5 @@ public class TipoContacto
     public string NombreTipo { get; set; } = null!;
     public string Icono { get; set; } = null!;
 
-    public virtual ICollection<DetalleContactoRed> Detalles { get; set; }
+    public virtual ICollection<DetalleContactoRed> Detalles { get; set; } = new HashSet<DetalleContactoRed>();
 }

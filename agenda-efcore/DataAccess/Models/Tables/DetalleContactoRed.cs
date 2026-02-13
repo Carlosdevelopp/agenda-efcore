@@ -10,5 +10,5 @@ public class DetalleContactoRed
     public DateTime FechaRegistro { get; set; }
 
     public virtual Contacto? Contacto { get; set; }
-    public virtual TipoContacto TipoContacto { get; set; }
+    public virtual TipoContacto? TipoContacto { get; set; }
 }

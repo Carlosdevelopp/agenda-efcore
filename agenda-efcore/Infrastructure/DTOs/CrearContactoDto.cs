@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace Infrastructure.DTOs;
+﻿namespace Infrastructure.DTOs;
 
 public class CrearContactoDto
 {
@@ -9,7 +7,7 @@ public class CrearContactoDto
     public string? SegundoApellido { get; set; } 
     public string Telefono { get; set; } = string.Empty;
     public DateTime FechaNacimiento { get; set; }
-    public string? FotoRuta { get; set; } = string.Empty;
+    public string? FotoRuta { get; set; } 
     public string? Instagram { get; set; }
     public string? Facebook { get; set; } 
     public string? Twitter { get; set; } 
