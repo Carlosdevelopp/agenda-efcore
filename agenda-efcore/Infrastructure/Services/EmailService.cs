@@ -1,7 +1,6 @@
 ﻿using Infrastructure.Contract;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Identity.Client.Platforms.Features.DesktopOs.Kerberos;
 using System.Net;
 using System.Net.Mail;
 

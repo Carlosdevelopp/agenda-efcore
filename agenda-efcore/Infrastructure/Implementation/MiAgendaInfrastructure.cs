@@ -223,7 +223,7 @@ public class MiAgendaInfrastructure : IMiAgendaInfrastructure
         return resultado; 
     }
 
-    private void AgregarRedesSociales(Contacto contacto, string instagram, string facebook, string twitter)
+    private void AgregarRedesSociales(Contacto contacto, string? instagram, string? facebook, string? twitter)
     {
         if (!string.IsNullOrWhiteSpace(instagram))
         {
