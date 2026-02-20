@@ -7,10 +7,14 @@ public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-    public virtual DbSet<Usuario> Usuarios { get; set; } = null!;
-    public virtual DbSet<Contacto> Contactos { get; set; } = null!;
-    public virtual DbSet<DetalleContactoRed> DetallesContactosRedes { get; set; } = null!;
-    public virtual DbSet<PasswordResetToken> PasswordResetTokens { get; set; } = null!;
+    public DbSet<Usuario> Usuarios { get; set; } = null!;
+    public DbSet<Contacto> Contactos { get; set; } = null!;
+    public DbSet<DetalleContactoRed> DetallesContactosRedes { get; set; } = null!;
+    public DbSet<PasswordResetToken> PasswordResetTokens { get; set; } = null!;
+    public DbSet<Rol> Roles { get; set; }
+    public DbSet<Permiso> Permisos {get;set;}
+    public DbSet<RolPermiso> RolesPermisos { get; set; }
+    public DbSet<UsuarioRol> UsuariosRoles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -81,6 +85,41 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(t => t.Usuario)
                   .WithMany()
                   .HasForeignKey(t => t.UsuarioId);
+        });
+
+        modelBuilder.Entity<Rol>(entity =>
+        {
+            entity.HasKey(e => e.RolId);
+            entity.Property(e => e.NombreRol)
+                  .IsRequired()
+                  .HasMaxLength(50);
+
+            entity.HasIndex(e => e.NombreRol).IsUnique();
+        });
+
+        modelBuilder.Entity<UsuarioRol>(entity =>
+        {
+            entity.HasKey(e => new { e.UsuarioId, e.RolId});
+
+            entity.HasOne(e => e.Usuario)
+                  .WithMany() //Falta  <=
+                  .HasForeignKey(e => e.UsuarioId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.Rol)
+                  .WithMany(e => e.UsuariosRoles)
+                  .HasForeignKey(e => e.UsuarioId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Permiso>(entity =>
+        {
+            entity.HasKey(e => e.PermisoId);
+            entity.Property(e => e.NombrePermiso).IsRequired().HasMaxLength(100);
+            entity.Property(e => e.Modulo).IsRequired().HasMaxLength(50);
+            entity.Property(e => e.Descripcion).HasMaxLength(255);
+            entity.Property(e => e.FechaCreacion).HasDefaultValueSql("GETDATE()");
+            entity.HasIndex(e => e.NombrePermiso).IsUnique();
         });
     }
 }
