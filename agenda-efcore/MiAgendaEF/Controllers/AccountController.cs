@@ -43,7 +43,7 @@ public class AccountController : Controller
     {
         try
         {
-            //Si  ya está autenticado, redirige
+            //Si ya está autenticado, redirige
             if (User.Identity?.IsAuthenticated == true)
             {
                 return RedirectToAction("Index", "Contacts");
